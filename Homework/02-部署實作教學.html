@@ -1,0 +1,204 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+:root{--ink:#1f2622;--quiet:#5d675f;--line:#d9ded8;--tint:#f3f5ef;--accent:#2f88b3;--warn:#d95432}
+*{box-sizing:border-box}
+body{margin:0;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;color:var(--ink);background:#fff;line-height:1.7;font-size:15px}
+.doc{max-width:860px;margin:0 auto;padding:40px 32px 64px}
+.eyebrow{letter-spacing:.18em;font-size:12px;color:var(--accent);font-weight:700;margin:0 0 8px}
+h1{font-size:30px;line-height:1.25;margin:0 0 8px}
+.meta{color:var(--quiet);margin:0 0 28px;border-bottom:1px solid var(--line);padding-bottom:16px}
+h2{font-size:20px;margin:36px 0 10px;padding-left:12px;border-left:4px solid var(--accent)}
+h3{font-size:16px;margin:24px 0 6px}
+h4{font-size:15px;margin:20px 0 4px;color:var(--accent)}
+p{margin:8px 0}
+ol,ul{padding-left:24px;margin:8px 0}
+li{margin:4px 0}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+code{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;background:var(--tint);padding:1px 5px;border-radius:4px}
+pre{background:#1f2622;color:#eef2ea;border-radius:8px;padding:12px 16px;margin:10px 0;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+pre.prompt{background:#eaf3f8;color:var(--ink);border-left:4px solid var(--accent)}
+pre.prompt::before{content:"貼給 Copilot Chat";display:block;font-size:11px;letter-spacing:.12em;color:var(--accent);margin-bottom:6px;font-family:inherit}
+.check{background:var(--tint);border-radius:8px;padding:10px 14px;margin:8px 0}
+.check::before{content:"檢查點　";font-weight:700;color:var(--warn)}
+.flow{display:flex;gap:0;margin:16px 0;flex-wrap:wrap}
+.flow span{flex:1;min-width:120px;border:1.5px solid #9aa58f;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;line-height:1.5}
+.flow span.main{border-color:var(--accent);background:#eaf3f8}
+.flow i{display:flex;align-items:center;padding:0 8px;color:var(--quiet);font-style:normal}
+.flow b{display:block;font-size:14px;margin-bottom:2px}
+.todo li{list-style:none;margin-left:-20px}
+.todo li::before{content:"☐ ";}
+.print{position:fixed;top:16px;right:16px;padding:8px 14px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font:inherit}
+small.src{color:var(--quiet)}
+figure{margin:16px 0}figure img{width:100%;height:auto;border-radius:10px;display:block}figure.diagram img{border:1px solid var(--line);background:#fffdf7}figcaption{font-size:12.5px;color:var(--quiet);margin-top:6px}
+@media print{.print{display:none}.doc{padding:0}h2,h3,h4{break-after:avoid}table,pre,.flow,.check,figure{break-inside:avoid}@page{size:A4;margin:16mm}}
+</style><title>部署實作教學｜PACE 校園運動</title></head><body>
+<button class="print" onclick="window.print()">列印／另存 PDF</button>
+<main class="doc">
+<p class="eyebrow">PACE 校園運動 · 部署實作（學生版）</p>
+<h1>用 VS Code 與 Copilot，做出你自己的 GPS 網站</h1>
+<p class="meta">建議兩堂：第一堂 90 分鐘完成任務 1 到 5；第二堂 50 分鐘完成任務 6。｜姓名／代號：____________　日期：____________　<small class="src">版本 2026-10-14</small></p>
+
+<figure><img src="images/illus-vscode-copilot.jpg" alt="示意插畫：學生在筆電上使用編輯器與 AI 聊天側欄，旁邊手機顯示地圖"><figcaption>左邊寫程式、右邊問 Copilot，手機放旁邊隨時實測。AI 生成示意圖。</figcaption></figure>
+
+<h2>這份實作要你做什麼</h2>
+<p>你會在自己的 GitHub 上做出一個網站，用手機在戶外走一次真實的 GPS 紀錄，再用 VS Code 和 Copilot 分析自己的數據。完成後你會交出三樣東西：你的網址、一份軌跡檔、一份實作紀錄表。</p>
+<figure class="diagram"><img src="images/flow-deploy.svg" alt="流程圖：六個任務與改參數再部署的回圈"><figcaption>每個任務都有檢查點。檢查點沒過，就停下來先解決，不要跳到下一步。</figcaption></figure>
+
+<h2>準備（課前 10 分鐘）</h2>
+<table>
+<thead><tr><th>項目</th><th>要求</th><th>怎麼檢查</th></tr></thead>
+<tbody>
+<tr><td>GitHub 帳號</td><td>已註冊，能登入 github.com</td><td>瀏覽器開 github.com，能看到右上角的頭像</td></tr>
+<tr><td>VS Code 與 Git</td><td>VS Code 最新版；電腦已安裝 Git</td><td>終端機輸入 <code>git --version</code>，出現版本號</td></tr>
+<tr><td>GitHub Copilot</td><td>Copilot 可以使用（學校或個人方案）</td><td>側欄出現 Copilot 圖示，能開啟 Chat</td></tr>
+<tr><td>Python 3</td><td>用來本機預覽網站</td><td>終端機輸入 <code>python3 --version</code>；Windows 試 <code>py -3 --version</code></td></tr>
+<tr><td>手機</td><td>Android Chrome 或 iPhone Safari；已開啟定位服務</td><td>地圖 App 能顯示你的位置</td></tr>
+<tr><td>戶外場地</td><td>校園內天空開闊的步道或操場，能連續走 15 到 20 分鐘</td><td>老師指定的路線與集合點</td></tr>
+</tbody>
+</table>
+
+<h2>任務 1　用範本建立你的倉庫</h2>
+<ol>
+<li>開啟老師的範本：<code>https://github.com/RichTsai1688/pace-site</code>。</li>
+<li>按綠色的 <strong>Use this template</strong>，選 <strong>Create a new repository</strong>。</li>
+<li>Owner 選你自己的帳號。Repository name 填 <code>pace-你的名字</code>（英文或拼音，不要有空白）。選 <strong>Public</strong>，按 Create repository。</li>
+</ol>
+<div class="check">你的倉庫裡有 <code>index.html</code>、<code>README.md</code>、<code>.gitignore</code> 與 <code>.github</code> 資料夾。</div>
+<p><strong>交件：</strong>你的倉庫網址（格式：<code>https://github.com/你的帳號/pace-你的名字</code>）。</p>
+
+<h2>任務 2　開啟 GitHub Pages</h2>
+<ol>
+<li>在你的倉庫按 <strong>Settings</strong>，左側選 <strong>Pages</strong>。</li>
+<li>Build and deployment 的 Source 選 <strong>Deploy from a branch</strong>。Branch 選 <code>main</code>，資料夾選 <code>/ (root)</code>，按 Save。</li>
+<li>等 1 到 3 分鐘，頁面上方會出現網址：<code>https://你的帳號.github.io/pace-你的名字/</code>。</li>
+</ol>
+<p>免費的 GitHub Pages 需要 Public 倉庫。不確定哪裡要按，可以在 Copilot Chat 的 Ask 模式問：「我要在 GitHub 倉庫開啟 Pages，從 main 分支根目錄發布，請一步一步告訴我要點哪裡。」</p>
+<div class="check">用電腦開啟你的網址，網址開頭是 https://，首頁與地圖都出現。</div>
+
+<h2>任務 3　用 VS Code 複製到電腦，並在本機預覽</h2>
+<ol>
+<li>開啟 VS Code，按 <code>Cmd+Shift+P</code>（Windows 是 <code>Ctrl+Shift+P</code>），輸入 <strong>Git: Clone</strong>。</li>
+<li>貼上你的倉庫網址，選一個資料夾存放，按 Open。第一次可能要求登入 GitHub，請自己完成登入，不要把密碼或 token 貼進聊天。</li>
+<li>開啟 Copilot Chat（Mac 按 <code>Cmd+Ctrl+I</code>；Windows 按 <code>Ctrl+Alt+I</code>）。模式選 <strong>Ask</strong>，輸入：</li>
+</ol>
+<pre class="prompt">/explain-project</pre>
+<div class="check">Copilot 用表格列出每個檔案的用途，並說明資料從「開始運動」到「匯入檢視」經過哪些檔案。</div>
+<ol start="4">
+<li>把模式改成 <strong>Agent</strong>，輸入：</li>
+</ol>
+<pre class="prompt">/preview-locally</pre>
+<p>Copilot 會在終端機啟動伺服器，並告訴你網址。用瀏覽器開 <code>http://localhost:8000</code>，按「開始運動」→「先體驗示範運動」，距離數字會增加。</p>
+<div class="check">首頁正常，示範運動的距離會增加。如果 Copilot 無法啟動伺服器，就在終端機手動執行 <code>python3 -m http.server 8000</code>（Windows 是 <code>py -3 -m http.server 8000</code>）。</div>
+<p><strong>交件：</strong>Copilot 的表格截圖（任選一張）。</p>
+
+<h2>任務 4　修改一個地方，推送後讓網站更新</h2>
+<ol>
+<li>在 Copilot Chat 切換到 <strong>Edit</strong> 模式，附加 <code>index.html</code>，輸入：</li>
+</ol>
+<pre class="prompt">/change-and-check 把 index.html 側邊欄的 FENG CHIA UNIVERSITY 改成「我的班級名稱」（用你自己的班級名稱）。只改這一處，其他不動。</pre>
+<ol start="2">
+<li>在本機重新整理，確認側邊欄已經改了。</li>
+<li>推送：在 Chat 切換到 <strong>Agent</strong> 模式，輸入 <code>/publish-changes</code>。Copilot 會先列出變更的檔案，確認沒有 <code>my-tracks/</code> 或 <code>.json</code>、<code>.csv</code>，才會 commit 與 push。</li>
+</ol>
+<p>也可以不用 Copilot：左側 Source Control（<code>Ctrl+Shift+G</code>）寫 commit 訊息、按 Commit，再按 Sync Changes。</p>
+<div class="check">等 1 到 3 分鐘，重新整理你的 Pages 網址，側邊欄出現新名稱。仍然沒有更新，就強制重新整理一次，再等 2 分鐘。</div>
+<p><strong>交件：</strong>Pages 網址上看到新名稱的截圖。</p>
+
+<h2>任務 5　手機 GPS 實測（核心任務）</h2>
+<p>這一步一定要在戶外用手機完成。電腦的 localhost 只能測試介面，真實定位要用你的 https 網址。</p>
+<ol>
+<li>用手機開啟你的 Pages 網址。Android 用 Chrome，iPhone 用 Safari。</li>
+<li>允許網站使用定位，並開啟「精確位置」。依手機的提示操作即可。</li>
+<li>到戶外，按「我的定位」，地圖上出現藍點。室內通常無法定位。</li>
+<li>按「開始運動」，填入代號（不要填真實姓名）、身高、體重與年齡，活動選「舒適步行」或「快走」，勾選同意，再按「開始 GPS 運動」。</li>
+<li>在地圖上點一下老師指定的集合點（老師會告訴你地點名稱）。畫面會顯示到集合點的直線距離。</li>
+<li>走 15 到 20 分鐘。網頁必須保持在前景，停下來休息時按「暫停」。</li>
+<li>按「結束並儲存」。到「運動紀錄」，在那一筆紀錄上按「軌跡」下載 JSON，再按「摘要」下載 CSV。</li>
+<li>把兩個檔案傳到電腦（AirDrop、Google Drive，或寄給自己），放進 VS Code 專案的 <code>my-tracks/</code> 資料夾。沒有這個資料夾就新增一個。</li>
+</ol>
+<div class="check">手機上地圖有橘色軌跡、綠色「起」點，運動紀錄列表有一筆 GPS 紀錄（不是示範），總距離至少 0.2 公里，有效點數至少 30 個。</div>
+<div class="note">軌跡檔含有你的位置。它只留在你自己的電腦，只交給老師，不要推送到 GitHub，也不要公開分享。<code>.gitignore</code> 已經忽略 <code>my-tracks/</code> 與 <code>*.track.json</code>。</div>
+<p><strong>交件：</strong>軌跡 JSON 與摘要 CSV（依老師指示交件，僅限課堂使用）。</p>
+
+<h2>任務 6　匯入檢視與 Copilot 分析</h2>
+<p><strong>A．在網站上看你的路線。</strong>在你的 Pages 網址按側邊欄的「匯入檢視」，選擇你的軌跡 JSON。請看：起點（綠色「起」）、終點（藍色「終」）、集合點（橘色「集」）、距離、時間、平均速度、估算熱量，以及熱量算式。</p>
+<p><strong>B．讓 Copilot 驗算。</strong>在 VS Code 的 Copilot Chat 切換到 <strong>Agent</strong> 模式。用 <code>#file</code> 附加你的軌跡檔，再輸入：</p>
+<pre class="prompt">/analyze-track #file:my-tracks/你的檔名.json</pre>
+<div class="check">Copilot 算出的總距離與網站顯示的距離，差異小於 0.1%。最大速度不超過 8 m/s。熱量與網站一致。若不一致，請把 Copilot 的回答與數字寫進實作紀錄表，並問它差異的原因。</div>
+<p><strong>C．填寫實作紀錄表。</strong>開啟課堂發下的《實作紀錄表》，把數字填入，回答分析題。</p>
+<p><strong>交件：</strong>實作紀錄表（下載 .txt 或列印）。</p>
+
+<h2>選做：改一個參數，做對照實驗</h2>
+<p>這是課後作業。目標是觀察定位門檻如何影響有效點數與距離。</p>
+<ol>
+<li>在 Copilot Chat 的 Edit 模式附加 <code>core.js</code>，輸入：<code>/change-and-check 把 core.js 的精度門檻從 35 改成 20，說明會影響什麼。</code></li>
+<li>用 <code>/publish-changes</code> 推送，等 Pages 更新。</li>
+<li>在同一條路線再走 15 分鐘，儲存新的軌跡檔。</li>
+<li>把兩次紀錄的有效點數、總距離與段數比較，寫進實作紀錄表的 D 區。</li>
+</ol>
+<div class="note">一次只改一件事。比較時，天氣、路線與走路速度要盡量相同，比較才有意義。</div>
+
+<h2>交件清單</h2>
+<ul class="todo">
+<li>任務 1：倉庫網址</li>
+<li>任務 2：Pages 網址能用 https 開啟</li>
+<li>任務 3：Copilot 表格截圖（任選）</li>
+<li>任務 4：修改後的 Pages 網址截圖</li>
+<li>任務 5：軌跡 JSON 與摘要 CSV（依老師指示）</li>
+<li>任務 6：實作紀錄表（.txt 或列印）</li>
+<li>選做：對照實驗的紀錄表 D 區</li>
+</ul>
+
+<h2>常見問題</h2>
+<table>
+<thead><tr><th>症狀</th><th>原因</th><th>處理</th></tr></thead>
+<tbody>
+<tr><td>顯示「GPS 需要 HTTPS 網址」</td><td>用了 http 或區網 IP</td><td>手機一定要用 github.io 的 https 網址</td></tr>
+<tr><td>一直「等待 GPS」</td><td>室內，或精度大於 35 公尺</td><td>走到戶外空曠處，等 10 到 30 秒</td></tr>
+<tr><td>定位權限被拒絕</td><td>之前按了拒絕</td><td>在手機的瀏覽器設定中允許位置，並開啟精確位置</td></tr>
+<tr><td>網頁改了但網址沒變</td><td>Pages 還在部署，或瀏覽器快取</td><td>等 2 分鐘後強制重新整理</td></tr>
+<tr><td>地圖空白</td><td>手機沒有網路</td><td>底圖需要網路；GPS 紀錄本身不需要網路</td></tr>
+<tr><td>輸入 /analyze-track 沒有反應</td><td>Copilot 版本不支援 prompt 檔案，或檔案不在 <code>.github/prompts/</code></td><td>更新 VS Code 與 Copilot；或把 prompt 檔的內容直接貼進聊天</td></tr>
+<tr><td>push 被拒絕</td><td>遠端有新的變更</td><td>執行 <code>git pull</code> 後再 push</td></tr>
+<tr><td>commit 要求設定作者</td><td>電腦還沒有 Git 作者資訊</td><td>在倉庫執行 <code>git config user.name "你的名字"</code> 與 <code>git config user.email "你的 email"</code></td></tr>
+</tbody>
+</table>
+
+<h2>附錄 A．進階：路線 B，全端在自己電腦執行</h2>
+<p>在 VS Code 開啟 <code>campus-move</code> 資料夾。每個 prompt 貼完後讀 Copilot 顯示的指令，按 Continue。</p>
+
+<h4>步驟 1：安裝相依套件</h4>
+<pre class="prompt">@workspace 請先用 Ask 模式讀 README.md 與 package.json，用繁體中文列出執行這個專案前需要哪些工具與版本，以及 install:ci、build、dev、start 四個 npm script 各做什麼。</pre>
+<pre class="prompt">請用 Agent 模式：先執行 node -v 確認版本是 22.13 以上，然後執行 npm run install:ci。安裝需要幾分鐘，結束後告訴我有沒有 error。若只有 deprecated 警告，可以繼續下一步；出現其他 error 就停下來問老師。</pre>
+
+<h4>步驟 2：建置並建立本機資料庫</h4>
+<pre class="prompt">請用 Agent 模式：執行 npm run build。完成後確認 dist/server/wrangler.json 存在。接著執行 README.md「執行」段落裡那行以 node --import ./scripts/sites-env.mjs 開頭的 wrangler d1 execute 指令，對本機 D1 套用 drizzle/0000_last_old_lace.sql。只執行一次。</pre>
+<div class="check">終端機顯示 SQL 執行成功，<code>.wrangler/state</code> 資料夾出現。</div>
+
+<h4>步驟 3：設定教師帳號</h4>
+<p>專案根目錄的 <code>.dev.vars</code> 寫著 <code>TEACHER_EMAILS="seedy@sites.test"</code>，這是本機模擬登入的帳號，直接沿用即可。這個檔案不可以 commit 或上傳。若資料夾裡沒有這個檔案，在 campus-move 根目錄新增，內容只寫這一行，並執行 <code>git check-ignore .dev.vars</code> 確認它被忽略。</p>
+
+<h4>步驟 4：啟動開發伺服器並登入</h4>
+<pre class="prompt">請用 Agent 模式執行 npm run dev，等它印出網址後告訴我。不要關閉這個終端機。</pre>
+<p>瀏覽器開 <code>http://localhost:5173/classroom.html</code>，按「使用 ChatGPT 帳號登入」。本機會以模擬帳號 <code>seedy@sites.test</code> 登入，畫面出現 TEACHER WORKSPACE。建立一個班級，拿到 12 碼班級碼，新增一堂課。</p>
+<p>本機模擬只有一個身分，所以學生加入與繳交流程用自動測試驗證：</p>
+<pre class="prompt">請用 Agent 模式執行 node tests/classroom.mjs，把最後一行輸出貼給我並用繁體中文解釋它驗證了哪些事情。</pre>
+<div class="check">輸出以 <code>PASS:</code> 開頭，提到 61 人同時加入只收 60 人、60 人同時繳交成功。</div>
+
+<h4>步驟 5：型別檢查</h4>
+<pre class="prompt">請用 Agent 模式執行 npx tsc --noEmit，沒有輸出代表通過。若有錯誤，把錯誤貼給我並解釋。</pre>
+
+<h2>附錄 B．教師：正式發佈給全班</h2>
+<p>班級中心依賴 Sites 平台注入的 ChatGPT 登入標頭，所以完整版要透過 ChatGPT Codex 的 Sites 工作流程發佈，不是 GitHub Pages。發佈前後要做的事：</p>
+<ul class="todo">
+<li>在 Sites 的環境變數設定 <code>TEACHER_EMAILS</code>，填教師 email，逗號分隔。不要寫進 <code>hosting.json</code> 或任何前端檔案。</li>
+<li>發佈流程會自動套用 <code>drizzle/</code> 的 migration，確認 D1 binding 名稱是 <code>DB</code>。</li>
+<li>預設網站是擁有者私有。到 Sites 分享設定開放給學生帳號，私人預覽網址不等於全班可用。</li>
+<li>用一個學生帳號走完登入、加入、核准、GPS 記錄、繳交、查看；Android 與 iPhone 各測一次。</li>
+<li>班級碼只在課堂上公布，不貼公開群組。</li>
+</ul>
+
+
+</main>
+</body></html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GPS 與地圖導航原理｜PACE 校園運動教學講義</title>
+<style>
+:root{--ink:#1f2622;--quiet:#5d675f;--line:#d9ded8;--tint:#f3f5ef;--accent:#d95432;--accent2:#2f88b3}
+*{box-sizing:border-box}
+body{margin:0;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;color:var(--ink);background:#fff;line-height:1.7;font-size:15px}
+.doc{max-width:860px;margin:0 auto;padding:40px 32px 64px}
+.eyebrow{letter-spacing:.18em;font-size:12px;color:var(--accent);font-weight:700;margin:0 0 8px}
+h1{font-size:30px;line-height:1.25;margin:0 0 8px}
+.meta{color:var(--quiet);margin:0 0 28px;border-bottom:1px solid var(--line);padding-bottom:16px}
+h2{font-size:20px;margin:36px 0 10px;padding-left:12px;border-left:4px solid var(--accent)}
+h3{font-size:16px;margin:22px 0 6px}
+p{margin:8px 0}
+ol,ul{padding-left:24px;margin:8px 0}
+li{margin:4px 0}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+.formula{background:var(--tint);border-radius:8px;padding:12px 16px;margin:12px 0;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.8}
+.flow{display:flex;align-items:stretch;gap:0;margin:16px 0;flex-wrap:wrap}
+.flow span{flex:1;min-width:120px;border:1.5px solid #9aa58f;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;line-height:1.5}
+.flow span.main{border-color:var(--accent);background:#fbe9e3}
+.flow i{display:flex;align-items:center;padding:0 8px;color:var(--quiet);font-style:normal}
+.flow b{display:block;font-size:14px;margin-bottom:2px}
+.answer{border:1px dashed #9aa58f;border-radius:8px;height:64px;margin:6px 0 14px}
+.note{background:var(--tint);border-radius:8px;padding:12px 16px;margin:12px 0}
+.print{position:fixed;top:16px;right:16px;padding:8px 14px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font:inherit}
+small.src{color:var(--quiet)}
+figure{margin:16px 0}figure img{width:100%;height:auto;border-radius:10px;display:block}figure.diagram img{border:1px solid var(--line);background:#fffdf7}figcaption{font-size:12.5px;color:var(--quiet);margin-top:6px}
+@media print{.print{display:none}.doc{padding:0}h2{break-after:avoid}table,.formula,.flow,.answer,figure{break-inside:avoid}@page{size:A4;margin:16mm}}
+</style>
+</head>
+<body>
+<button class="print" onclick="window.print()">列印／另存 PDF</button>
+<main class="doc">
+<p class="eyebrow">PACE 校園運動 · TEACHING NOTES</p>
+<h1>從衛星到足跡：GPS 與地圖導航原理</h1>
+<p class="meta">逢甲大學校園運動課｜建議兩堂課（共 140 分鐘）｜姓名／代號：____________　日期：____________　<small class="src">版本 2026-10-13</small></p>
+
+<figure><img src="images/illus-gps-satellites.jpg" alt="示意插畫：四顆衛星向手機發送訊號，球面交會處即為位置"><figcaption>測距定位示意：每顆衛星的推算距離是一個球面，多個球面的交會處就是你的位置。AI 生成示意圖，非真實校園。</figcaption></figure>
+<p>這份講義搭配 PACE 校園運動網站使用。學完後你應該能解釋手機怎麼定位、為什麼兩個人走同一條路距離卻不同，以及熱量數字是怎麼估出來的。</p>
+
+<h2>一、學習目標</h2>
+<ol>
+<li>說明手機如何用衛星訊號估算位置，並解釋為什麼通常需要至少 4 顆衛星。</li>
+<li>分清楚「定位」「地圖」「導航」三件事，並指出你的網站用到其中哪些。</li>
+<li>用你自己的軌跡檔驗算距離、速度與熱量，找出 App 數字與你算出的數字差在哪裡。</li>
+<li>用真實紀錄說明：GPS 數字為什麼不完全準確，哪些能相信、哪些只能當參考。</li>
+</ol>
+<h2>二、GPS 怎麼知道我在哪裡？</h2>
+<p>GPS 是全球衛星導航系統（GNSS）的一種，其他還有歐盟 Galileo、俄羅斯 GLONASS 與中國北斗。衛星不斷廣播「我是誰、我在哪、現在幾點」，手機只負責接收，不會把你的位置傳回衛星。</p>
+<p>手機用訊號飛行時間推算與每顆衛星的距離：</p>
+<div class="formula">距離 d ＝ 光速 c × 時間差 Δt，　c ≈ 300,000,000 m/s<br>時間差 1 微秒 → 距離差約 300 公尺</div>
+<p>所以衛星上裝的是原子鐘，手機的時鐘則不夠準。把每顆衛星當成球心、推算距離當半徑，多個球面的交會處就是你的位置，這叫測距定位（trilateration）。手機時鐘有偏差，所以至少要 4 顆衛星才能同時解出經度、緯度、高度與時鐘誤差。</p>
+<p>手機瀏覽器拿到的「位置」通常混合了衛星、Wi-Fi、基地台與感測器。網頁的 Geolocation API 只回傳經緯度、時間與精度半徑，不會告訴你用了幾顆衛星。</p>
+
+<figure class="diagram"><img src="images/flow-gps.svg" alt="流程圖：衛星廣播、手機接收、經緯度與精度圈、過濾雜訊、加總距離、估算熱量"><figcaption>上排是手機與衛星的事，下排是 PACE 網頁自己做的計算；只有最後一格的熱量完全不來自 GPS。</figcaption></figure>
+
+<h2>三、定位、地圖、導航是三件事</h2>
+<table>
+<thead><tr><th>功能</th><th>回答的問題</th><th>PACE 網站怎麼做</th></tr></thead>
+<tbody>
+<tr><td>定位</td><td>我在哪裡？</td><td>手機回傳經緯度、時間戳與精度半徑（公尺）。</td></tr>
+<tr><td>地圖</td><td>附近有什麼？</td><td>Leaflet 把 OpenStreetMap 圖磚鋪在畫面上，再把經緯度放上去。</td></tr>
+<tr><td>路徑規劃</td><td>哪條路能到？</td><td>交給 Google Maps 步行導航，由外部服務計算。</td></tr>
+<tr><td>導航</td><td>接下來怎麼走？</td><td>外部 App 提示；PACE 只畫軌跡和到集合點的直線距離。</td></tr>
+</tbody>
+</table>
+<p>路徑規劃把路口當節點、道路當邊，用距離或時間當成本，再用 Dijkstra 或 A* 這類演算法找最短路。地圖資料可能漏掉校內便道或臨時封閉的門，所以畫面上的虛線只是方向參考，不代表能穿牆。</p>
+
+<h2>四、走了多遠，怎麼算？</h2>
+<p>GPS 每隔幾秒留下一個點 P1、P2、P3……。PACE 用 Haversine 公式算相鄰兩點的球面距離，再全部加起來：</p>
+<div class="formula">a ＝ sin²(Δφ/2) ＋ cosφ₁ · cosφ₂ · sin²(Δλ/2)<br>d ＝ 2R · atan2(√a, √(1−a))，　R ＝ 6,371,000 m<br><br>總距離 ＝ d(P1,P2) ＋ d(P2,P3) ＋ …<br>平均速度 (km/h) ＝ 距離 (km) ÷ 運動時間 (h)</div>
+<p>例子：走 1.2 km、計時 20 分鐘，平均速度 = 1.2 ÷ (20/60) = 3.6 km/h。按「暫停」的時間不算；停下來卻忘了按暫停，時間照跑，平均速度就會變低。</p>
+
+<h2>五、站著不動，為什麼點還在跑？</h2>
+<p>樹蔭、建築遮擋、訊號反射（多路徑效應）、衛星分布角度、大氣延遲都會讓定位點飄。畫面上的精度圈是「大概在這個範圍內」，不是「一定在這個點」。PACE 用四條經驗規則過濾雜訊：</p>
+<table>
+<thead><tr><th>規則</th><th>門檻</th><th>為什麼</th></tr></thead>
+<tbody>
+<tr><td>精度太差就丟掉</td><td>精度半徑 &gt; 35 m</td><td>室內或高樓旁的點不可信。</td></tr>
+<tr><td>位移太小當飄移</td><td>位移 &lt; 4 到 12 m（依精度調整）</td><td>站著不動時避免累積假距離。</td></tr>
+<tr><td>速度太快當跳點</td><td>相鄰點速度 &gt; 8 m/s（約 29 km/h）</td><td>人跑不到這麼快，多半是訊號跳動。</td></tr>
+<tr><td>間隔太久就斷段</td><td>兩點相隔 &gt; 30 秒</td><td>漏記的區間不畫直線硬接。</td></tr>
+</tbody>
+</table>
+<p>這些門檻是教學用的折衷：可能少算慢速轉彎，也不能完全消除飄移。超過 30 秒沒有新定位，系統會自動暫停。</p>
+
+<h2>六、熱量是估的，不是 GPS 量的</h2>
+<p>GPS 只給位置。熱量用活動強度 MET、體重與時間估算。MET 是「這個活動的耗能是安靜坐著的幾倍」。</p>
+<div class="formula">總消耗 kcal ≈ MET × 3.5 × 體重 kg ÷ 200 × 時間 min</div>
+<table>
+<thead><tr><th>PACE 活動</th><th>MET</th><th>適用情境（2024 成人 Compendium 代碼）</th></tr></thead>
+<tbody>
+<tr><td>舒適步行</td><td>3.5</td><td>休閒步行，17160</td></tr>
+<tr><td>快走</td><td>4.8</td><td>平坦路面約 5.6 到 6.3 km/h，17200</td></tr>
+<tr><td>慢跑</td><td>7.5</td><td>自選速度慢跑，12020</td></tr>
+</tbody>
+</table>
+<p>例子：60 kg 的同學舒適步行 20 分鐘，3.5 × 3.5 × 60 ÷ 200 × 20 = <strong>73.5 kcal</strong>，畫面顯示 74。這是含休息代謝的總消耗；想算「比坐著多消耗多少」，把 MET 改成 MET − 1，得到約 52.5 kcal。</p>
+<div class="note">注意三件事。MET 是開始前自己選的，不會依 GPS 速度自動改。身高與年齡只作課堂資料，不進公式。成人 MET 表主要適用 19 到 59 歲，未滿 19 歲只能當公式示範，不能當個人評估，也不能拿來排名或打分數。</div>
+
+<figure><img src="images/illus-campus-walk.jpg" alt="示意插畫：兩位學生在校園步道健走並查看手機上的軌跡"><figcaption>兩人同行、停下再看畫面，是課堂上最安全的使用方式。AI 生成示意圖。</figcaption></figure>
+<h2>七、兩堂課怎麼進行</h2>
+<table>
+<thead><tr><th>堂次</th><th>時間</th><th>做什麼</th><th>交件</th></tr></thead>
+<tbody>
+<tr><td>第一堂</td><td>90 分鐘</td><td>任務 1 到 5：建立自己的網站、用 Copilot 修改並推送、戶外手機實測</td><td>網址、軌跡 JSON、摘要 CSV</td></tr>
+<tr><td>第二堂</td><td>50 分鐘</td><td>任務 6：在匯入檢視看路線、用 Copilot 驗算、填寫實作紀錄表；與同路線的同學比較</td><td>實作紀錄表</td></tr>
+<tr><td>課後</td><td>選做</td><td>改一個參數（例如精度門檻），再走一次，比較有效點數與距離</td><td>紀錄表 D 區</td></tr>
+</tbody>
+</table>
+<p>每個任務的操作步驟與檢查點，請看《部署實作教學》。這份講義只說明為什麼要這樣做，以及你要用數據回答什麼問題。</p>
+
+<h2>八、實作紀錄表：用你自己的數據回答</h2>
+<p>紀錄表是 04 號文件，可以在網頁上填寫後下載，也可以列印。所有數字都必須來自你自己的軌跡檔，不能抄同學的。</p>
+<ol>
+<li><strong>數據對照：</strong>App 顯示的距離、時間、平均速度、熱量，與你用 Copilot 或公式算出的結果並排比較。</li>
+<li><strong>直線與總距離：</strong>起點到終點的直線距離是多少？為什麼總距離比它長？用軌跡上的點說明。</li>
+<li><strong>分段：</strong>如果紀錄有兩段以上，找出斷開的地方，看看是暫停、斷訊，還是相鄰點的時間差超過 30 秒。</li>
+<li><strong>速度與過濾：</strong>找出最快的相鄰點，它的速度是多少？它有沒有超過 8 m/s？為什麼 App 會保留或丟掉點？</li>
+<li><strong>熱量：</strong>用公式重算熱量，與 App 比較。如果 MET 改成「MET − 1」，熱量會變多少？</li>
+<li><strong>誤差來源：</strong>這次紀錄的誤差可能來自哪些地方？至少寫出兩項，並對照第五節。</li>
+<li><strong>小組比較（選做）：</strong>和走同一條路線的同學比較，距離為什麼不同？</li>
+<li><strong>反思：</strong>GPS 紀錄能證明什麼？不能證明什麼？</li>
+</ol>
+
+<h2>九、資料與使用約定</h2>
+<p>網站只在運動開始並同意後記錄軌跡；結束時寫入此瀏覽器的本機儲存。學生可另行確認提交運動摘要與身體指標至班級資料庫，完整軌跡不上傳。清除網站資料、換手機或無痕模式可能使資料消失。老師請先說明收集目的、保存期限、繳交方式，提供不分享定位的替代活動，並避免公開個人軌跡或用熱量比較學生。</p>
+
+<h2>參考資料（2026-10-13 查閱）</h2>
+<ul>
+<li>GPS.gov：GPS Overview — https://www.gps.gov/systems/gps/index.php；GPS Accuracy — https://www.gps.gov/gps-accuracy</li>
+<li>FAA：GPS — How It Works — https://www.faa.gov/about/office_org/headquarters_offices/ato/service_units/techops/navservices/gnss/gps/howitworks</li>
+<li>MDN：Geolocation watchPosition — https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/watchPosition</li>
+<li>2024 Adult Compendium：Walking — https://pacompendium.com/walking/；Running — https://pacompendium.com/running/</li>
+<li>OpenStreetMap 資料與著作權說明 — https://www.openstreetmap.org/copyright</li>
+</ul>
+</main>
+</body>
+</html>
