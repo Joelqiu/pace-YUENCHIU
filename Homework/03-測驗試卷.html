@@ -83,6 +83,31 @@ table.ws input{width:100%;border:none;border-bottom:1px solid var(--ink);font:in
 <p class="hint">下載的檔案包含代號、姓名與所有答案，請交給老師。</p>
 </form>
 </main><script>
+const f = document.getElementById('exam');
+const answers = {
+  q1: 'D',
+  q2: 'B',
+  q3: 'B',
+  q4: 'B',
+  q5: 'B',
+  q6: 'D',
+  q7: '213.3',
+  q7_算式: '7.5 × 3.5 × 65 ÷ 200 × 25 = 213.28125 ≈ 213.3 kcal',
+  q8: '4.8',
+  q8_算式: '1200 m ÷ 1000 = 1.2 km；900 秒 ÷ 3600 = 0.25 小時；1.2 ÷ 0.25 = 4.8 km/h',
+  q9: '手機瀏覽器基於安全性，只允許 HTTPS 等安全來源使用定位；http://localhost 是例外。',
+  q10: '可能原因包括建築物或樹木遮擋衛星訊號，以及訊號反射造成多路徑效應。',
+  q11: 'bcdea',
+  q12: '錯',
+  q13: '對',
+  q14: '錯',
+  q15: '錯'
+};
+for (const [name, value] of Object.entries(answers)) {
+  const choice = f.querySelector(`input[name="${name}"][value="${value}"]`);
+  if (choice) choice.checked = true;
+  else f.elements[name].value = value;
+}
 document.getElementById('dl').onclick = function () {
   const f = document.getElementById('exam');
   const title = document.body.dataset.title || 'PACE 作答';
