@@ -113,6 +113,8 @@
     addFact(dl, '活動方式', r.mode || '未記錄');
     addFact(dl, '身高 ／ 體重 ／ 年齡', [r.height, r.weight, r.age].map((v, i) => v == null ? '—' : v + ['cm', 'kg', '歲'][i]).join(' ／ '));
     addFact(dl, '活動強度 MET', isNum(r.met) ? String(r.met) : '未記錄');
+    if (isNum(r.steps)) addFact(dl, '估算步數', r.steps + ' 步');
+    if (isNum(r.cadence)) addFact(dl, '平均步頻', r.cadence + ' 步/分');
     addFact(dl, '有效定位點', pts.length + ' 個，分為 ' + segments + ' 段（暫停或斷訊後會另起一段）');
     addFact(dl, '起點座標', first.lat.toFixed(5) + ', ' + first.lng.toFixed(5));
     addFact(dl, '終點座標', last.lat.toFixed(5) + ', ' + last.lng.toFixed(5));
