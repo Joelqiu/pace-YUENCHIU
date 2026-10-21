@@ -8,3 +8,4 @@ campus-move*.csv
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
+.wrangler/

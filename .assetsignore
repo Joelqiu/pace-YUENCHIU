@@ -4,9 +4,14 @@ server/
 .github/
 .vscode/
 .dev.vars.example
+.dev.vars
+.dev.vars.*
+.wrangler/
 Homework/
 my-tracks/
 node_modules/
+*.track.json
+*.summary.csv
 wrangler.jsonc
 .assetsignore
 README.md

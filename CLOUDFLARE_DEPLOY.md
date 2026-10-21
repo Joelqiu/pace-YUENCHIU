@@ -49,6 +49,8 @@ npx wrangler deploy
 
 Wrangler 會部署 Worker 與靜態網站資源。`/api/*` 由 Worker 處理，其餘檔案由 Static Assets 提供。參考 [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/) 與 [D1 Wrangler migrations](https://developers.cloudflare.com/d1/wrangler-commands/)。
 
+專案根目錄的 `.assetsignore` 會排除 Wrangler 暫存、開發用 secret 與個人 GPS 軌跡，避免它們被當作公開靜態資源上傳。
+
 ## 4. 上線前人工驗收
 
 - 登入名單包含的教師帳號，確認可建立班級；以學生帳號登入並申請加入，教師核准後再選擇開放課程。

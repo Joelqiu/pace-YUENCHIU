@@ -89,8 +89,8 @@ async function requireMember(db, classId, userId, activeOnly = true) {
 
 async function classroom(request, env, ctx, user) {
   const url = new URL(request.url);
-  const op = url.searchParams.get("op") || "";
   const data = request.method === "POST" ? await body(request) : Object.fromEntries(url.searchParams);
+  const op = String(data.op || url.searchParams.get("op") || "");
   const db = env.DB;
 
   if (op === "login" && request.method === "GET") return Response.redirect(new URL("/classroom.html", url), 302);
@@ -124,10 +124,18 @@ async function classroom(request, env, ctx, user) {
     const alias = String(data.alias || "").trim().slice(0, 24);
     if (!code || !alias) return fail("請輸入班級碼與課堂代號。", 400);
     const memberId = id();
-    const result = await db.prepare(`INSERT INTO members (id,class_id,user_id,alias,status,joined_at)
-      SELECT ?, c.id, ?, ?, 'pending', ? FROM classes c
-      WHERE c.join_code=? AND (SELECT COUNT(*) FROM members m WHERE m.class_id=c.id)<c.capacity`)
-      .bind(memberId, user.sub, alias, nowIso(), code).run();
+    let result;
+    try {
+      result = await db.prepare(`INSERT INTO members (id,class_id,user_id,alias,status,joined_at)
+        SELECT ?, c.id, ?, ?, 'pending', ? FROM classes c
+        WHERE c.join_code=? AND (SELECT COUNT(*) FROM members m WHERE m.class_id=c.id)<c.capacity`)
+        .bind(memberId, user.sub, alias, nowIso(), code).run();
+    } catch (error) {
+      if (String(error?.message || error).includes("members.class_id, members.alias")) {
+        return fail("這個班級代號已有人使用，請改用不同代號再送出。", 409);
+      }
+      throw error;
+    }
     if (!result.meta?.changes) return fail("班級碼無效或名額已滿。", 409);
     return json({ id: memberId, status: "pending" }, 201);
   }
@@ -166,6 +174,14 @@ async function classroom(request, env, ctx, user) {
     if (!user.teacher || !await requireTeacherClass(db, classId, user.sub)) return fail("只有班級教師可以審核學生。", 403);
     await db.prepare("UPDATE members SET status='active' WHERE id=? AND class_id=? AND status='pending'").bind(memberId, classId).run();
     return json({ ok: true });
+  }
+
+  if (op === "pendingMembers" && request.method === "GET") {
+    const classId = String(data.classId || "");
+    if (!user.teacher || !await requireTeacherClass(db, classId, user.sub)) return fail("只有班級教師可以查看加入申請。", 403);
+    const rows = await db.prepare("SELECT id,alias,joined_at FROM members WHERE class_id=? AND status='pending' ORDER BY joined_at")
+      .bind(classId).all();
+    return json({ students: rows.results || [] });
   }
 
   if (op === "removeMember" && request.method === "POST") {

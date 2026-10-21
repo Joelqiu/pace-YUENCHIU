@@ -12,7 +12,7 @@
     {
       "binding": "DB",
       "database_name": "pace-yuanchiu",
-      "database_id": "REPLACE_AFTER_CREATING_D1",
+      "database_id": "3ffd285e-e291-4317-98f5-cc1d28a86f14",
       "migrations_dir": "server/migrations"
     }
   ],
@@ -23,8 +23,8 @@
   "triggers": { "crons": ["0 */6 * * *"] },
   "vars": {
     "ENVIRONMENT": "production",
-    "ACCESS_TEAM_DOMAIN": "https://YOUR-TEAM.cloudflareaccess.com",
-    "ACCESS_AUD": "REPLACE-WITH-ACCESS-APPLICATION-AUD",
+    "ACCESS_TEAM_DOMAIN": "https://wild-truth-d557.cloudflareaccess.com",
+    "ACCESS_AUD": "cfd67804580f96c23802f820262c8591b5ecc0f12c12a7cc9b94433a676e2767",
     "LIVE_RETENTION_HOURS": "24"
   }
 }
