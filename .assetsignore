@@ -22,3 +22,5 @@ CLOUDFLARE_DEPLOY.md
 *.sqlite
 *.sqlite3
 *.db
+
+.npm-cache/

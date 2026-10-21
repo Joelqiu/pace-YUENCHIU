@@ -1,11 +1,10 @@
-// Base map for every page: OpenStreetMap standard tiles, the same source as the original campus map.
-// Light use only. For school-wide or many-class use, switch to a school-hosted or licensed tile service
-// and keep the attribution text.
+// A clearer OpenStreetMap France rendering, with a softer color treatment in style.css.
+// Keep visible attribution and follow the provider's public, non-profit, moderate-traffic usage policy.
 window.PACE_TILE={
-  maxZoom:19,
-  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom:16,
+  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL) · <a href="https://www.openstreetmap.fr/open-data/">Tiles by OpenStreetMap France</a> (CC BY-SA)',
   layers:[
-    {url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png'}
+    {url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png'}
   ]
 };
 // Adds the base layers to a map and returns the first (base) tile layer so callers can listen for tile errors.
