@@ -1,29 +1,27 @@
-# PACE 校園運動：我的 GPS 網站
+# PACE 校園運動
 
-這個倉庫是你自己的網站，是純靜態網頁，部署在 GitHub Pages，不需要後端，也不需要資料庫。運動紀錄只存在你的手機或電腦瀏覽器中。
+PACE 可以在瀏覽器本機記錄 GPS 運動，也提供選擇性班級雲端功能。沒有部署雲端版時，運動與匯出功能仍可在 GitHub Pages 等靜態網站使用；班級登入、繳交及即時軌跡只在 Cloudflare Worker 版啟用。
 
-## 開始使用
+## 雲端功能
 
-1. 在 Settings → Pages 找到你的網址，格式是 `https://你的帳號.github.io/倉庫名稱/`。
-2. 用 VS Code 的 **Git: Clone** 把這個倉庫下載到電腦。
-3. 在 Copilot Chat 輸入 `/explain-project`，認識檔案與流程。
+- Cloudflare Worker 提供班級 API 與靜態網站資源。
+- D1 保存班級、課程、成員、摘要繳交與即時紀錄索引。
+- Durable Objects WebSocket 房間轉送即時運動數值與 GPS 點。
+- Cloudflare Access 驗證登入；教師角色另由伺服器的 `TEACHER_EMAILS` 清單決定。
+- 即時軌跡須在每次運動前另外勾選同意，只分享給本人與該班教師；運動結束 24 小時後自動刪除。
+- 手動繳交課堂摘要不包含完整 GPS 軌跡。
 
-## Copilot 指令
+## Cloudflare 部署
 
-在 Copilot Chat 輸入下列指令（需要 VS Code 支援 prompt 檔案）：
+依照 [Cloudflare 部署與驗收說明](CLOUDFLARE_DEPLOY.md) 建立 D1、設定 Access、套用資料表並部署 Worker。`wrangler.jsonc` 中的資料庫 ID、Access Team Domain 與 Audience 需要填入自己的環境值；教師 email 必須用 Worker secret 設定。
 
-| 指令 | 用途 |
-| --- | --- |
-| `/explain-project` | 用繁體中文認識專案檔案與資料流程 |
-| `/preview-locally` | 在電腦啟動本機預覽，網址是 http://localhost:8000 |
-| `/change-and-check` | 小步修改一個參數，並給出驗證步驟 |
-| `/analyze-track` | 分析你匯出的軌跡 JSON，驗算距離、速度與熱量 |
-| `/publish-changes` | 檢查變更、commit 並推送，讓網站自動更新 |
+部署前不要把學生軌跡 JSON、CSV、真實 email 或 `.dev.vars` 放進倉庫。
 
-## 隱私
+## 專案檔案
 
-軌跡 JSON 與摘要 CSV 含有位置資料。請放在 `my-tracks/` 資料夾，不要推送到 GitHub，也不要公開分享。`.gitignore` 已經設定忽略這些檔案。
-
-## 課程講義
-
-完整的實作步驟、手機實測與實作紀錄表，請看課堂發下的《部署實作教學》。這個倉庫只放網站本身。
+- `app.js`、`core.js`：手機 GPS、步數估算、運動紀錄與匯出。
+- `cloud-live.js`、`live.html`、`live.js`：GPS 同意、離線暫存、即時同步與電腦地圖。
+- `classroom.js`、`server/worker.js`：班級頁面及 API。
+- `server/live-room.js`：WebSocket 即時房間與軌跡保存。
+- `server/migrations/`：D1 schema。
+- `sw.js`：離線快取。API 回應不會放進快取。

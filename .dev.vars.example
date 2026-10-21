@@ -1,0 +1,3 @@
+ENVIRONMENT=development
+DEV_USER_EMAIL=teacher@example.test
+TEACHER_EMAILS=teacher@example.test

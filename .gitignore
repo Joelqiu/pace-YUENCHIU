@@ -5,3 +5,6 @@ my-tracks/
 campus-track*.json
 campus-move*.csv
 .DS_Store
+.dev.vars
+.dev.vars.*
+!.dev.vars.example

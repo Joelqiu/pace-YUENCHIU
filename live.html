@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f7f2">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="live.css">
+  <title>即時運動儀表板 · PACE</title>
+</head>
+<body class="live-page">
+  <header class="live-header">
+    <a class="brand" href="index.html"><span class="brand-symbol">//</span>PACE</a>
+    <nav><a href="index.html">運動紀錄</a><a href="classroom.html">班級中心</a></nav>
+    <a href="/api/classroom?op=login" id="liveLogin">登入</a>
+  </header>
+  <main class="live-main">
+    <div class="live-heading">
+      <div><span class="overline">LIVE ACTIVITY</span><h1 id="liveTitle">即時運動軌跡</h1><p id="liveSubtitle">正在確認查看權限…</p></div>
+      <div class="live-status-pill" id="liveStatus">連線中</div>
+    </div>
+    <div id="liveMessage" class="live-message" role="status" aria-live="polite">正在載入這筆即時紀錄。</div>
+    <section class="live-layout">
+      <div class="live-map-card">
+        <div id="liveMap" aria-label="即時 GPS 軌跡地圖"></div>
+        <button id="centerTrack" class="live-center" type="button">定位到軌跡</button>
+      </div>
+      <aside class="live-stats-card">
+        <div><span>運動者</span><strong id="liveAlias">—</strong></div>
+        <div><span>距離</span><strong><b id="liveDistance">0.00</b> <small>km</small></strong></div>
+        <div><span>運動時間</span><strong id="liveElapsed">00:00</strong></div>
+        <div><span>估算步數</span><strong id="liveSteps">—</strong></div>
+        <div><span>平均步頻</span><strong id="liveCadence">—</strong></div>
+        <div><span>有效定位點</span><strong id="livePointCount">0</strong></div>
+        <div><span>最近定位精度</span><strong id="liveAccuracy">—</strong></div>
+        <div class="live-actions"><button id="deleteLive" type="button" hidden>刪除此即時紀錄</button></div>
+      </aside>
+    </section>
+    <p class="live-privacy">GPS 軌跡只提供本人與此課程授權教師查看，並在運動結束後 24 小時自動清除。定位精度與路線僅供即時參考。</p>
+  </main>
+  <script src="vendor/leaflet.js"></script>
+  <script src="tiles.js"></script>
+  <script src="live.js"></script>
+</body>
+</html>

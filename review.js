@@ -94,12 +94,12 @@
   function showFacts(r) {
     const km = r.meters / 1000, sec = r.seconds;
     const speed = sec > 0 ? km / (sec / 3600) : 0;
-    const computedKcal = isNum(r.met) && isNum(r.weight) ? MoveCore.calories(r.met, r.weight, sec) : 0;
+    const computedKcal = isNum(r.met) && isNum(r.weight) ? MoveCore.calories(r.met, r.weight, sec) : null;
     const kcal = isNum(r.kcal) ? r.kcal : computedKcal;
     $('statDistance').textContent = km.toFixed(2);
     $('statTime').textContent = fmtTime(sec);
     $('statSpeed').textContent = speed.toFixed(1);
-    $('statKcal').textContent = String(Math.round(kcal));
+    $('statKcal').textContent = isNum(kcal) ? String(Math.round(kcal)) : '—';
 
     const dl = $('facts');
     dl.replaceChildren();
@@ -116,6 +116,11 @@
     if (isNum(r.steps)) addFact(dl, '估算步數', r.steps + ' 步');
     if (isNum(r.cadence)) addFact(dl, '平均步頻', r.cadence + ' 步/分');
     addFact(dl, '有效定位點', pts.length + ' 個，分為 ' + segments + ' 段（暫停或斷訊後會另起一段）');
+    const quality = MoveCore.summarizeTrack(pts), splitRows = MoveCore.splitByDistance(pts);
+    const median = isNum(quality.medianAccuracy) ? `±${Math.round(quality.medianAccuracy)} m` : '—';
+    const p90 = isNum(quality.p90Accuracy) ? `±${Math.round(quality.p90Accuracy)} m` : '—';
+    const maxGap = isNum(quality.maxIntervalSeconds) ? `${quality.maxIntervalSeconds.toFixed(1)} 秒` : '—';
+    addFact(dl, '定位間隔與精度', `最大間隔 ${maxGap}；精度中位數 ${median}、第 90 百分位 ${p90}；超過 15 秒的間隔 ${quality.longGaps} 次`);
     addFact(dl, '起點座標', first.lat.toFixed(5) + ', ' + first.lng.toFixed(5));
     addFact(dl, '終點座標', last.lat.toFixed(5) + ', ' + last.lng.toFixed(5));
     const t = r.target;
@@ -123,12 +128,27 @@
       ? '終點到集合點直線約 ' + Math.round(MoveCore.distance(last, t)) + ' 公尺'
       : '這次紀錄未設定集合點');
     addFact(dl, '平均速度', speed.toFixed(2) + ' km/h（距離 ÷ 運動時間）');
-    addFact(dl, '熱量算式', (isNum(r.met) && isNum(r.weight))
+    addFact(dl, '熱量估算', (isNum(kcal) && isNum(r.met) && isNum(r.weight))
       ? r.met + ' × 3.5 × ' + r.weight + ' ÷ 200 × ' + (sec / 60).toFixed(1) + ' 分鐘 ＝ ' + kcal.toFixed(1) + ' kcal（估算值，非 GPS 測量）'
-      : '未記錄');
+      : isNum(kcal) ? `${kcal.toFixed(1)} kcal（紀錄中的估算值；體重未保存在紀錄）` : '未提供體重，未估算熱量');
+    $('qualityCard').hidden = false;
+    $('qualitySummary').textContent = `這些是裝置回報的紀錄指標，不是準確度分數。最大定位間隔 ${maxGap}；精度中位數 ${median}、第 90 百分位 ${p90}；分為 ${quality.segments} 段。超過 15 秒的間隔可能代表更新中斷；分段配速依定位點估算，缺點或暫停會影響結果。`;
+    const list = $('splitList'); list.replaceChildren();
+    if (!splitRows.length) { const li = document.createElement('li'); li.textContent = '目前沒有足夠連續距離形成 100 公尺以上的分段。'; list.append(li); }
+    const maxPace = Math.max(1, ...splitRows.map(split => split.seconds / Math.max(split.meters / 1000, .001) / 60));
+    for (const [index, split] of splitRows.entries()) {
+      const li = document.createElement('li'), label = document.createElement('span'), bar = document.createElement('div'), fill = document.createElement('span'), pace = document.createElement('span');
+      label.textContent = `${index + 1}. ${(split.meters / 1000).toFixed(2)} km`;
+      bar.className = 'split-bar'; bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', '該分段配速圖');
+      const minutesPerKm = split.seconds / Math.max(split.meters / 1000, .001) / 60;
+      fill.style.width = `${Math.max(4, Math.min(100, minutesPerKm / maxPace * 100))}%`; bar.append(fill);
+      pace.className = 'split-time'; pace.textContent = `${Math.floor(minutesPerKm)}:${String(Math.round((minutesPerKm % 1) * 60)).padStart(2, '0')} 分/公里`;
+      li.append(label, bar, pace); list.append(li);
+    }
   }
 
   function showList(rows, name) {
+    $('qualityCard').hidden = true;
     const head = rows[0], body = rows.slice(1);
     const distIdx = head.indexOf('距離 m');
     const kcalIdx = head.indexOf('總熱量 kcal');
@@ -176,6 +196,15 @@
   }
 
   $('file').addEventListener('change', e => handleFiles(e.target.files));
+  const savedId = new URLSearchParams(location.search).get('record');
+  if (savedId) {
+    try {
+      const records = JSON.parse(localStorage.getItem('campus-move-history-v1') || '[]');
+      const record = Array.isArray(records) ? records.find(item => String(item.id) === savedId) : null;
+      if (validTrack(record)) { showTrack(record); showFacts(record); setStatus('已從本機歷程開啟回顧，資料沒有上傳。'); $('drop').hidden = true; }
+      else setStatus('找不到這筆本機紀錄；可能已被刪除。');
+    } catch { setStatus('無法讀取本機歷程。'); }
+  }
   const drop = $('drop');
   ['dragenter', 'dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
   ['dragleave', 'drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
