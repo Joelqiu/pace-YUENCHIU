@@ -1,3 +1,4 @@
 ENVIRONMENT=development
 DEV_USER_EMAIL=teacher@example.test
+DEV_USER_ID=local-teacher
 TEACHER_EMAILS=teacher@example.test

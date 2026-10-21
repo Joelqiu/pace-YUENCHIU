@@ -58,7 +58,7 @@ async function verifyAccessToken(request, env) {
     const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
     const valid = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, base64UrlBytes(parts[2]), new TextEncoder().encode(`${parts[0]}.${parts[1]}`));
     if (!valid) throw new Error("invalid signature");
-    return { sub: String(claims.sub), email: String(claims.email).trim().toLowerCase(), teacher: teacherEmails(env).has(String(claims.email).trim().toLowerCase()) };
+    return { sub: String(claims.sub), teacher: teacherEmails(env).has(String(claims.email).trim().toLowerCase()) };
   } catch {
     throw Object.assign(new Error("Access 登入資訊無效或已過期，請重新登入。"), { status: 401 });
   }
@@ -67,7 +67,8 @@ async function verifyAccessToken(request, env) {
 async function identity(request, env) {
   if (env.ENVIRONMENT === "development" && env.DEV_USER_EMAIL) {
     const email = env.DEV_USER_EMAIL.trim().toLowerCase();
-    return { sub: `dev:${email}`, email, teacher: teacherEmails(env).has(email) };
+    const devUserId = String(env.DEV_USER_ID || "local-user").trim().slice(0, 80);
+    return { sub: `dev:${devUserId}`, teacher: teacherEmails(env).has(email) };
   }
   return verifyAccessToken(request, env);
 }
@@ -93,7 +94,7 @@ async function classroom(request, env, ctx, user) {
   const db = env.DB;
 
   if (op === "login" && request.method === "GET") return Response.redirect(new URL("/classroom.html", url), 302);
-  if (op === "me" && request.method === "GET") return json({ teacher: user.teacher, userId: user.sub, email: user.email });
+  if (op === "me" && request.method === "GET") return json({ teacher: user.teacher });
 
   if (op === "classes" && request.method === "GET") {
     if (user.teacher) {
@@ -342,9 +343,8 @@ async function liveApi(request, env, ctx, user) {
   if (action === "socket" && request.method === "GET") {
     if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") return fail("WebSocket 連線格式錯誤。", 426);
     const room = env.LIVE_ROOMS.get(env.LIVE_ROOMS.idFromName(sessionId));
-    const headers = new Headers(request.headers);
+    const headers = new Headers({ Upgrade: "websocket" });
     headers.set("X-PACE-USER", user.sub);
-    headers.set("X-PACE-EMAIL", user.email);
     headers.set("X-PACE-ROLE", owns ? "owner" : "teacher");
     headers.set("X-PACE-STATUS", session.status);
     headers.set("X-PACE-EXPIRES", String(session.expires_at));

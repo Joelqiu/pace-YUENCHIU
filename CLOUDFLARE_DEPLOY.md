@@ -4,22 +4,34 @@
 
 ## 1. 建立 Cloudflare 資源
 
-1. 在 Cloudflare 帳號中建立 D1 資料庫：
+1. 安裝 Node.js，於專案資料夾登入 Wrangler：
 
    ```powershell
-   npx wrangler d1 create pace-yuanchiu
+   npx wrangler login
    ```
 
-2. 將輸出的資料庫 ID 填入 `wrangler.jsonc` 的 `d1_databases[0].database_id`。
-3. 將 `ACCESS_TEAM_DOMAIN` 改成自己的 Access Team Domain，例如 `https://school.cloudflareaccess.com`。在 Zero Trust 的 Access application 設定中建立自用網站應用程式，保護 Worker 網址下的 `/api/*` 路徑。
-4. 讓預期使用者都符合 Access 的登入政策。教師也必須登入；教師權限另由 `TEACHER_EMAILS` 決定。
-5. 將 Access application 的 Audience Tag 填入 `ACCESS_AUD`。
+2. 在 Cloudflare 帳號中建立 D1 資料庫（`apac` 是位置提示）：
+
+   ```powershell
+   npx wrangler d1 create pace-yuanchiu --location apac
+   ```
+
+3. 將輸出的資料庫 ID 填入 `wrangler.jsonc` 的 `d1_databases[0].database_id`。
+4. 先套用資料表並部署一次，以取得 Worker 網址：
+
+   ```powershell
+   npx wrangler d1 migrations apply pace-yuanchiu --remote
+   npx wrangler deploy
+   ```
+
+5. 在 Zero Trust > Access > Applications 建立 Self-hosted 應用程式，保護 Worker 網址下的 `/api/*` 路徑。使用主機名稱／路徑型 Access 應用程式，以保留 WebSocket 即時連線；不要使用 Worker 層級 Access 保護。讓預期使用者都符合 Access 登入政策。
+6. 將 Access Team Domain 填入 `ACCESS_TEAM_DOMAIN`，將 Access application 的 Audience Tag 填入 `ACCESS_AUD`。
 
 Access 會在送到 Worker 的請求附上 `Cf-Access-Jwt-Assertion`。Worker 會向 Team Domain 讀取公開簽章金鑰，驗證簽章、issuer、audience、有效期限與 email；只檢查請求標頭不足以驗證登入。參考 [Access JWT 驗證說明](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/)。
 
 ## 2. 設定教師名單與資料表
 
-教師 email 不要寫在前端、`wrangler.jsonc` 或 Git。使用 Worker secret 設定逗號分隔的教師名單：
+教師 email 名單只會作為 Cloudflare Worker secret 儲存，不會寫入前端、`wrangler.jsonc`、D1 或 Git。Access email 只供 Worker 請求期間判斷角色；D1 使用 Access subject ID 作為偽名帳號關聯鍵。使用 Worker secret 設定教師名單：
 
 ```powershell
 npx wrangler secret put TEACHER_EMAILS
@@ -27,13 +39,7 @@ npx wrangler secret put TEACHER_EMAILS
 
 依提示輸入教師 email，例如 `teacher1@example.edu,teacher2@example.edu`。不在名單內的已登入使用者會以學生角色使用服務。
 
-套用 D1 資料表：
-
-```powershell
-npx wrangler d1 migrations apply pace-yuanchiu --remote
-```
-
-本專案使用 Durable Objects SQLite storage 保存即時點位；Wrangler 部署時會套用 `LiveRoom` 類別遷移。
+本專案使用 Durable Objects SQLite storage 保存即時點位；Wrangler 部署時會套用 `LiveRoom` 類別遷移。網站不要求手機號碼或密碼，也不需要第三方 API key。不要把登入憑證、Access token、真實教師 email 名單或 `.dev.vars` 寫進 Git。
 
 ## 3. 部署 Worker 與網站
 
