@@ -24,7 +24,7 @@
   "vars": {
     "ENVIRONMENT": "production",
     "ACCESS_TEAM_DOMAIN": "https://wild-truth-d557.cloudflareaccess.com",
-    "ACCESS_AUD": "bbb5ef45ae7ea1c560a453a3f64672f8ea4d72401cd4351c4afd9381ee1b42a0ff",
+    "ACCESS_AUD": "b5ef45ae7ea1c560a453a3f64672f8ea4d72401cd4351c4afd9381ee1b42a0ff",
     "PAGES_ALLOWED_ORIGINS": "https://joelqiu.github.io",
     "LIVE_RETENTION_HOURS": "24"
   }
