@@ -22,6 +22,7 @@
     if (!fields || byId('liveSyncSetup')) return;
     const box = h('section', '', 'live-sync-setup');
     box.id = 'liveSyncSetup';
+    box.dataset.cloudOnly = '';
     const heading = h('strong', '即時同步到電腦');
     const consentLabel = h('label', '', 'check live-sync-check');
     const consent = document.createElement('input'); consent.type = 'checkbox'; consent.id = 'liveSyncConsent';
@@ -217,6 +218,7 @@
     const panel = document.querySelector('.session-panel');
     if (!panel || byId('liveSyncStatus')) return;
     const node = h('div', '', 'live-sync-status'); node.id = 'liveSyncStatus';
+    node.dataset.cloudOnly = '';
     node.append(h('span', '未啟用即時同步')); panel.append(node);
   }
 
