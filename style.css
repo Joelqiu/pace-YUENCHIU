@@ -81,3 +81,11 @@ textarea{font:inherit;display:block;width:100%;border:1px solid #dce2d0;border-r
   .record-review-link{flex:1;min-width:150px}
   .record-more-menu{max-width:calc(100vw - 48px)}
 }
+
+/* Keep local and live-sharing consent rows visually aligned. */
+#fields>.check,
+#fields>.live-sync-setup>.live-sync-check{display:flex;align-items:flex-start;gap:7px;margin:8px 0}
+#fields>.check input,
+#fields>.live-sync-setup>.live-sync-check input{flex:0 0 auto;margin:2px 0 0}
+#fields>.check span,
+#fields>.live-sync-setup>.live-sync-check span{font-size:10px;line-height:1.7;color:#6e7c5d}

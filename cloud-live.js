@@ -25,18 +25,18 @@
     const heading = h('strong', '即時同步到電腦');
     const consentLabel = h('label', '', 'check live-sync-check');
     const consent = document.createElement('input'); consent.type = 'checkbox'; consent.id = 'liveSyncConsent';
-    const consentText = h('span', '同意後會即時分享本次 GPS 軌跡與運動數值，供本人及所選課程的授權教師查看。運動結束 24 小時後自動刪除；期限內本人或該班教師可提前刪除。');
+    const consentText = h('span', '分享本次運動的 GPS 軌跡與運動數值，讓自己及此課程的授權教師即時查看。');
     consentLabel.append(consent, consentText);
     const pickers = h('div', '', 'live-sync-pickers'); pickers.id = 'liveSyncPickers'; pickers.hidden = true;
-    const classLabel = h('label', '班級'); const classSelect = document.createElement('select'); classSelect.id = 'liveSyncClass'; classSelect.required = true; classLabel.append(classSelect);
-    const lessonLabel = h('label', '課程'); const lessonSelect = document.createElement('select'); lessonSelect.id = 'liveSyncLesson'; lessonSelect.required = true; lessonLabel.append(lessonSelect);
+    const classLabel = h('label', '班級'); const classSelect = document.createElement('select'); classSelect.id = 'liveSyncClass'; classSelect.required = false; classLabel.append(classSelect);
+    const lessonLabel = h('label', '課程'); const lessonSelect = document.createElement('select'); lessonSelect.id = 'liveSyncLesson'; lessonSelect.required = false; lessonLabel.append(lessonSelect);
     pickers.append(classLabel, lessonLabel);
     const message = h('p', '未勾選時不會上傳 GPS；本機運動紀錄照常保存。取消即時分享不影響本次運動記錄。', 'fine');
     const auth = h('a', '登入班級中心以啟用同步 →', 'live-sync-login'); auth.href = urlFor('api/classroom?op=login'); auth.hidden = true;
     const status = h('p', '', 'live-sync-config-status'); status.id = 'liveSyncConfigStatus';
     box.append(heading, consentLabel, pickers, message, auth, status);
     const consentExisting = byId('consent')?.closest('label');
-    fields.insertBefore(box, consentExisting || null);
+    if (consentExisting) consentExisting.after(box); else fields.append(box);
     consent.addEventListener('change', () => {
       pickers.hidden = !consent.checked;
       classSelect.required = consent.checked;
