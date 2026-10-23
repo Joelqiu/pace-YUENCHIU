@@ -101,12 +101,14 @@ textarea{font:inherit;display:block;width:100%;border:1px solid #dce2d0;border-r
 .live-sync-setup{border-top:0;margin-top:0;padding-top:0}
 #fields>.check{margin-bottom:2px}
 #fields>.live-sync-setup>.live-sync-check{margin:2px 0 4px}
-.motion-metrics{grid-column:1/-1;display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:8px;border-top:1px solid #ffffff14;padding-top:11px}
+.motion-metrics{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid #ffffff14;padding-top:11px}
 .motion-metrics article>span{display:block;font-size:9px;color:#a5b098}
 .motion-metrics article>strong{display:block;font-size:15px;font-weight:500;color:#fafbf4;font-variant-numeric:tabular-nums}
-.motion-metrics article:first-child>strong{font-size:11px;line-height:1.45;white-space:normal}
 .motion-metrics article>strong em{font-size:8px;font-style:normal;margin-left:3px;color:#b0b9a5}
 .motion-metrics article>small{display:block;font-size:8px;color:#72816a}
+.motion-sensor-note{grid-column:1/-1;margin:0;font-size:8px;line-height:1.5;color:#72816a}
+.motion-sensor-note b{font-weight:400}
+.metric-grid article>span small{display:inline;font-size:8px;color:#a5b098;letter-spacing:0;margin-left:2px}
 
 /* Reduce setup dialog scrolling on phones. */
 @media(max-width:650px){
