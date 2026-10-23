@@ -205,9 +205,8 @@
     try {
       const records = JSON.parse(localStorage.getItem('campus-move-history-v1') || '[]');
       const record = Array.isArray(records) ? records.find(item => String(item.id) === savedId) : null;
-      if (validTrack(record)) { showTrack(record); showFacts(record); setStatus('已從本機歷程開啟回顧，資料沒有上傳。'); $('drop').hidden = true; }
-      else setStatus('找不到這筆本機紀錄；可能已被刪除。');
-    } catch { setStatus('無法讀取本機歷程。'); }
+      if (validTrack(record)) { showTrack(record); showFacts(record); setStatus('已從本機歷程開啟回顧，資料沒有上傳。'); $('drop').hidden = true; } else { setStatus('\u9019\u7b46\u7d00\u9304\u6c92\u6709\u53ef\u67e5\u770b\u7684 GPS \u8ecc\u8de1\u3002'); $('drop').hidden = true; $('backHistory').hidden = false; }
+    } catch { setStatus('\u7121\u6cd5\u8b80\u53d6\u672c\u6a5f\u6b77\u7a0b\u3002'); $('drop').hidden = true; $('backHistory').hidden = false; }
   }
   const drop = $('drop');
   ['dragenter', 'dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));

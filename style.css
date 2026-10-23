@@ -89,3 +89,36 @@ textarea{font:inherit;display:block;width:100%;border:1px solid #dce2d0;border-r
 #fields>.live-sync-setup>.live-sync-check input{flex:0 0 auto;margin:2px 0 0}
 #fields>.check span,
 #fields>.live-sync-setup>.live-sync-check span{font-size:10px;line-height:1.7;color:#6e7c5d}
+
+/* Keep the history card steady while its actions are open. */
+.record-more>summary{user-select:none}
+.record-more-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:30;min-width:200px;max-width:min(280px,calc(100vw - 32px));margin:0;padding:8px;background:#fff;border:1px solid #dce2d1;border-radius:7px;box-shadow:0 8px 24px #242b271c}
+.record-more:not([open]) .record-more-menu{display:none}
+.record-more[open] .record-more-menu{display:flex}
+.record-review-link.unavailable{background:#f1f2ec;color:#929987;font-weight:450;cursor:default}
+.record-more>summary:focus-visible{outline:3px solid #e89462;outline-offset:3px}
+
+/* Reduce setup dialog scrolling on phones. */
+@media(max-width:650px){
+  dialog#setupDialog{width:calc(100vw - 20px);max-height:calc(100dvh - 16px);padding:16px 18px 12px;overflow-y:auto;overscroll-behavior:contain}
+  #setupDialog .dialog-intro{font-size:10px;margin:7px 0 11px;line-height:1.5}
+  #setupDialog label{font-size:11px;margin-bottom:9px}
+  #setupDialog label>span{font-size:8px}
+  #setupDialog input:not([type=checkbox]),#setupDialog select{min-height:37px;padding:8px 10px;margin-top:4px;font-size:12px}
+  #setupDialog .privacy-note{padding:8px 10px;gap:8px;font-size:9px;margin-bottom:8px}
+  #setupDialog .check{margin:6px 0}
+  #setupDialog .check span{font-size:9px;line-height:1.55}
+  #setupDialog .live-sync-setup{margin-top:7px;padding-top:7px}
+  #setupDialog .live-sync-setup>strong{font-size:10px;margin-bottom:5px}
+  #setupDialog .live-sync-check{margin:5px 0}
+  #setupDialog .live-sync-pickers label{margin-bottom:5px}
+  #setupDialog .live-sync-setup .fine{font-size:7px;line-height:1.45;margin:3px 0}
+  #setupDialog .live-sync-login{font-size:8px;margin:3px 0}
+  #setupDialog form>.primary{min-height:44px}
+  #setupDialog .demo-link{margin:8px auto;font-size:10px}
+  #setupDialog .fine{font-size:8px;line-height:1.5}
+}
+@media(min-width:430px) and (max-width:650px){
+  #setupDialog #fields{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+  #setupDialog #fields>label:nth-of-type(3),#setupDialog #fields>.privacy-note,#setupDialog #fields>.check,#setupDialog #fields>.live-sync-setup{grid-column:1/-1}
+}
