@@ -60,7 +60,7 @@ async function verifyAccessToken(request, env) {
     if (!valid) throw new Error("invalid signature");
     return { sub: String(claims.sub), teacher: teacherEmails(env).has(String(claims.email).trim().toLowerCase()) };
   } catch {
-    throw Object.assign(new Error("Access 登入資訊無效或已過期，請重新登入。"), { status: 401 });
+    throw Object.assign(new Error("Access 登入資訊無效或已過期，請重新登入；若仍失敗，請確認測試站 Access Audience Tag 設定。"), { status: 401 });
   }
 }
 
@@ -380,6 +380,16 @@ export default {
     try {
       if (request.method !== "GET" && request.method !== "HEAD" && request.headers.get("Origin") !== url.origin) {
         return fail("跨來源寫入請求已拒絕。", 403);
+      }
+      if (url.pathname === "/api/classroom" && request.method === "GET") {
+        const op = url.searchParams.get("op");
+        if (op === "login") return Response.redirect(new URL("/classroom.html", url), 302);
+        if (op === "reauth") {
+          const loginUrl = new URL("/api/classroom?op=login", url.origin);
+          const logoutUrl = new URL("/cdn-cgi/access/logout", url.origin);
+          logoutUrl.searchParams.set("returnTo", loginUrl.href);
+          return Response.redirect(logoutUrl, 302);
+        }
       }
       const user = await identity(request, env);
       if (url.pathname === "/api/classroom") return await classroom(request, env, ctx, user);

@@ -31,7 +31,7 @@
     const lessonLabel = h('label', '課程'); const lessonSelect = document.createElement('select'); lessonSelect.id = 'liveSyncLesson'; lessonSelect.required = false; lessonLabel.append(lessonSelect);
     pickers.append(classLabel, lessonLabel);
     const message = h('p', '未勾選時不會上傳 GPS；本機運動紀錄照常保存。取消即時分享不影響本次運動記錄。', 'fine');
-    const auth = h('a', '登入班級中心以啟用同步 →', 'live-sync-login'); auth.href = urlFor('api/classroom?op=login'); auth.hidden = true;
+    const auth = h('a', '登入班級中心以啟用同步 →', 'live-sync-login'); auth.href = urlFor('api/classroom?op=reauth'); auth.hidden = true;
     const status = h('p', '', 'live-sync-config-status'); status.id = 'liveSyncConfigStatus';
     box.append(consentLabel, pickers, message, auth, status);
     const consentExisting = byId('consent')?.closest('label');
