@@ -38,8 +38,7 @@
     if (consentExisting) consentExisting.after(box); else fields.append(box);
     consent.addEventListener('change', () => {
       pickers.hidden = !consent.checked;
-      classSelect.required = consent.checked;
-      lessonSelect.required = consent.checked;
+
     });
     classSelect.addEventListener('change', () => loadLessons(classSelect.value));
     bootstrapShareOptions().catch(error => {
