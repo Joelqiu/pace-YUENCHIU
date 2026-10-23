@@ -101,6 +101,12 @@ textarea{font:inherit;display:block;width:100%;border:1px solid #dce2d0;border-r
 .live-sync-setup{border-top:0;margin-top:0;padding-top:0}
 #fields>.check{margin-bottom:2px}
 #fields>.live-sync-setup>.live-sync-check{margin:2px 0 4px}
+.motion-metrics{grid-column:1/-1;display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:8px;border-top:1px solid #ffffff14;padding-top:11px}
+.motion-metrics article>span{display:block;font-size:9px;color:#a5b098}
+.motion-metrics article>strong{display:block;font-size:15px;font-weight:500;color:#fafbf4;font-variant-numeric:tabular-nums}
+.motion-metrics article:first-child>strong{font-size:11px;line-height:1.45;white-space:normal}
+.motion-metrics article>strong em{font-size:8px;font-style:normal;margin-left:3px;color:#b0b9a5}
+.motion-metrics article>small{display:block;font-size:8px;color:#72816a}
 
 /* Reduce setup dialog scrolling on phones. */
 @media(max-width:650px){
@@ -118,6 +124,7 @@ textarea{font:inherit;display:block;width:100%;border:1px solid #dce2d0;border-r
   #setupDialog .live-sync-setup .fine{font-size:7px;line-height:1.45;margin:3px 0}
   #setupDialog .live-sync-login{font-size:8px;margin:3px 0}
   #setupDialog form>.primary{min-height:44px}
+  #setupDialog form>.primary{margin-top:12px}
   #setupDialog .demo-link{margin:8px auto;font-size:10px}
   #setupDialog .fine{font-size:8px;line-height:1.5}
 }
