@@ -20,11 +20,11 @@
   let record;
 
   async function api(op, data = {}, write = false) {
-    const response = await fetch('/api/classroom' + (write ? '' : '?' + new URLSearchParams({ op, ...data })), {
+    const response = await PaceApi.fetch('/api/classroom' + (write ? '' : '?' + new URLSearchParams({ op, ...data })), {
       method: write ? 'POST' : 'GET',
       headers: write ? { 'Content-Type': 'application/json' } : {},
       body: write ? JSON.stringify({ op, ...data }) : undefined,
-      cache: 'no-store', credentials: 'same-origin',
+      cache: 'no-store',
     });
     let result;
     try { result = await response.json(); }

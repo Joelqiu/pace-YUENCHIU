@@ -8,7 +8,7 @@
   let shareReady = false, currentClass = '', currentSession = null;
 
   async function api(path, options = {}) {
-    const response = await fetch(urlFor(path), { cache: 'no-store', credentials: 'same-origin', ...options,
+    const response = await PaceApi.fetch(path, { cache: 'no-store', ...options,
       headers: options.body ? { 'Content-Type': 'application/json', ...(options.headers || {}) } : options.headers });
     let data;
     try { data = await response.json(); }
@@ -22,6 +22,7 @@
     if (!fields || byId('liveSyncSetup')) return;
     const box = h('section', '', 'live-sync-setup');
     box.id = 'liveSyncSetup';
+    box.dataset.cloudOnly = '';
     const consentLabel = h('label', '', 'check live-sync-check');
     const consent = document.createElement('input'); consent.type = 'checkbox'; consent.id = 'liveSyncConsent';
     const consentText = h('span', '分享本次運動的 GPS 軌跡與運動數值，讓自己及此課程的授權教師即時查看。');
@@ -31,7 +32,7 @@
     const lessonLabel = h('label', '課程'); const lessonSelect = document.createElement('select'); lessonSelect.id = 'liveSyncLesson'; lessonSelect.required = false; lessonLabel.append(lessonSelect);
     pickers.append(classLabel, lessonLabel);
     const message = h('p', '未勾選時不會上傳 GPS；本機運動紀錄照常保存。取消即時分享不影響本次運動記錄。', 'fine');
-    const auth = h('a', '登入班級中心以啟用同步 →', 'live-sync-login'); auth.href = urlFor('api/classroom?op=reauth'); auth.hidden = true;
+    const auth = h('a', '登入班級中心以啟用同步 →', 'live-sync-login'); auth.href = PaceApi.loginUrl(); auth.hidden = true;
     const status = h('p', '', 'live-sync-config-status'); status.id = 'liveSyncConfigStatus';
     box.append(consentLabel, pickers, message, auth, status);
     const consentExisting = byId('consent')?.closest('label');

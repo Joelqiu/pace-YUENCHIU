@@ -13,6 +13,7 @@ node_modules/
 *.track.json
 *.summary.csv
 wrangler.jsonc
+wrangler.merge-test.jsonc
 .assetsignore
 README.md
 CLOUDFLARE_DEPLOY.md

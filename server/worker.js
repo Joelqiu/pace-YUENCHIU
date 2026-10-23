@@ -11,7 +11,42 @@ const fail = (message, status = 400) => json({ error: message }, status);
 const id = () => crypto.randomUUID();
 const teacherEmails = env => new Set((env.TEACHER_EMAILS || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean));
 const activeRetentionMs = env => Math.max(1, Math.min(168, Number(env.LIVE_RETENTION_HOURS) || 24)) * 60 * 60 * 1000;
+const pageOrigins = env => new Set((env.PAGES_ALLOWED_ORIGINS || "").split(",").map(value => value.trim()).filter(Boolean));
 let accessKeys = null, accessKeysFetchedAt = 0;
+
+function withCors(response, origin) {
+  const headers = new Headers(response.headers);
+  headers.set("Access-Control-Allow-Origin", origin);
+  headers.set("Access-Control-Allow-Credentials", "true");
+  headers.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+  headers.set("Access-Control-Allow-Headers", "Content-Type");
+  headers.set("Access-Control-Max-Age", "600");
+  headers.set("Vary", "Origin");
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
+function preflight(request, allowed) {
+  const origin = request.headers.get("Origin");
+  const method = request.headers.get("Access-Control-Request-Method");
+  const headers = (request.headers.get("Access-Control-Request-Headers") || "").split(",").map(value => value.trim().toLowerCase()).filter(Boolean);
+  if (!origin || !allowed || !["GET", "POST", "DELETE"].includes(method) || headers.some(value => value !== "content-type")) {
+    return fail("跨來源 API 請求未獲允許。", 403);
+  }
+  return withCors(new Response(null, { status: 204 }), origin);
+}
+
+function loginReturnTo(url, env) {
+  const fallback = new URL("/classroom.html", url);
+  const raw = url.searchParams.get("returnTo");
+  if (!raw) return fallback;
+  try {
+    const target = new URL(raw);
+    const allowed = pageOrigins(env);
+    const pagesPath = target.origin !== "https://joelqiu.github.io" || target.pathname === "/pace-YUENCHIU" || target.pathname.startsWith("/pace-YUENCHIU/");
+    if (target.protocol === "https:" && pagesPath && (target.origin === url.origin || allowed.has(target.origin))) return target;
+  } catch {}
+  return fallback;
+}
 
 function base64UrlBytes(text) {
   const standard = text.replace(/-/g, "+").replace(/_/g, "/");
@@ -101,7 +136,7 @@ async function classroom(request, env, ctx, user) {
   const op = String(data.op || url.searchParams.get("op") || "");
   const db = env.DB;
 
-  if (op === "login" && request.method === "GET") return Response.redirect(new URL("/classroom.html", url), 302);
+  if (op === "login" && request.method === "GET") return Response.redirect(loginReturnTo(url, env), 302);
   if (op === "me" && request.method === "GET") return json({ teacher: user.teacher });
 
   if (op === "classes" && request.method === "GET") {
@@ -385,26 +420,35 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
+    const origin = request.headers.get("Origin");
+    const trustedOrigins = pageOrigins(env);
+    const trustedCrossOrigin = Boolean(origin && origin !== url.origin && trustedOrigins.has(origin));
+    if (request.method === "OPTIONS") return preflight(request, trustedCrossOrigin);
+    if (request.method !== "GET" && request.method !== "HEAD" && origin !== url.origin && !trustedCrossOrigin) {
+      return fail("跨來源 API 請求未獲允許。", 403);
+    }
     try {
-      if (request.method !== "GET" && request.method !== "HEAD" && request.headers.get("Origin") !== url.origin) {
-        return fail("跨來源寫入請求已拒絕。", 403);
-      }
       if (url.pathname === "/api/classroom" && request.method === "GET") {
         const op = url.searchParams.get("op");
-        if (op === "login") return Response.redirect(new URL("/classroom.html", url), 302);
+        if (op === "login") return Response.redirect(loginReturnTo(url, env), 302);
         if (op === "reauth") {
           const loginUrl = new URL("/api/classroom?op=login", url.origin);
+          const returnTo = url.searchParams.get("returnTo");
+          if (returnTo) loginUrl.searchParams.set("returnTo", returnTo);
           const logoutUrl = new URL("/cdn-cgi/access/logout", url.origin);
           logoutUrl.searchParams.set("returnTo", loginUrl.href);
           return Response.redirect(logoutUrl, 302);
         }
       }
       const user = await identity(request, env);
-      if (url.pathname === "/api/classroom") return await classroom(request, env, ctx, user);
-      if (url.pathname.startsWith("/api/live/")) return await liveApi(request, env, ctx, user);
-      return fail("找不到 API 路徑。", 404);
+      let response;
+      if (url.pathname === "/api/classroom") response = await classroom(request, env, ctx, user);
+      else if (url.pathname.startsWith("/api/live/")) response = await liveApi(request, env, ctx, user);
+      else response = fail("找不到 API 路徑。", 404);
+      return trustedCrossOrigin ? withCors(response, origin) : response;
     } catch (error) {
-      return fail(error.message || "服務暫時無法處理請求。", error.status || 500);
+      const response = fail(error.message || "服務暫時無法處理請求。", error.status || 500);
+      return trustedCrossOrigin ? withCors(response, origin) : response;
     }
   },
   async scheduled(_event, env) {
