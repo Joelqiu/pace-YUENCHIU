@@ -3,8 +3,8 @@
 (async () => {
   let cloud = false;
   try {
-    const r = await fetch('api/classroom?op=me', { cache: 'no-store' });
-    cloud = r.status !== 404;
+    const r = await fetch('api/classroom?op=me', { cache: 'no-store', credentials: 'same-origin', redirect: 'manual' });
+    cloud = r.status === 0 || r.type === 'opaqueredirect' || r.status !== 404;
   } catch {
     cloud = false;
   }
