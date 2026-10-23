@@ -3,7 +3,7 @@
 (async () => {
   let cloud = false;
   try {
-    const r = await fetch('api/classroom?op=me', { cache: 'no-store', credentials: 'same-origin', redirect: 'manual' });
+    const r = await PaceApi.fetch('/api/classroom?op=me', { redirect: 'manual' });
     cloud = r.status === 0 || r.type === 'opaqueredirect' || r.status !== 404;
   } catch {
     cloud = false;

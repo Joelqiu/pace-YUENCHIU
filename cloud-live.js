@@ -8,7 +8,7 @@
   let shareReady = false, currentClass = '', currentSession = null;
 
   async function api(path, options = {}) {
-    const response = await fetch(urlFor(path), { cache: 'no-store', credentials: 'same-origin', ...options,
+    const response = await PaceApi.fetch(path, { cache: 'no-store', ...options,
       headers: options.body ? { 'Content-Type': 'application/json', ...(options.headers || {}) } : options.headers });
     let data;
     try { data = await response.json(); }
@@ -33,7 +33,7 @@
     const lessonLabel = h('label', '課程'); const lessonSelect = document.createElement('select'); lessonSelect.id = 'liveSyncLesson'; lessonSelect.required = true; lessonLabel.append(lessonSelect);
     pickers.append(classLabel, lessonLabel);
     const message = h('p', '僅在勾選後傳送定位。完成後雲端即時軌跡保存 24 小時，期間可由本人或該班教師刪除。', 'fine');
-    const auth = h('a', '登入班級中心以啟用同步 →', 'live-sync-login'); auth.href = urlFor('api/classroom?op=login'); auth.hidden = true;
+    const auth = h('a', '登入班級中心以啟用同步 →', 'live-sync-login'); auth.href = PaceApi.loginUrl(); auth.hidden = true;
     const status = h('p', '', 'live-sync-config-status'); status.id = 'liveSyncConfigStatus';
     box.append(heading, consentLabel, pickers, message, auth, status);
     const consentExisting = byId('consent')?.closest('label');
@@ -155,7 +155,7 @@
     },
     connect() {
       if (!this.serverId || this.socket && [WebSocket.OPEN, WebSocket.CONNECTING].includes(this.socket.readyState)) return;
-      const target = new URL(urlFor(`api/live/${encodeURIComponent(this.serverId)}/socket`));
+      const target = new URL(PaceApi.url(`/api/live/${encodeURIComponent(this.serverId)}/socket`));
       target.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
       const socket = new WebSocket(target); this.socket = socket;
       socket.onopen = () => {

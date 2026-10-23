@@ -11,11 +11,12 @@
 </main></div>
 <dialog id="setupDialog"><div class="dialog-head"><div><span class="overline">BEFORE YOU GO</span><h2>準備開始</h2></div><button id="closeSetup" class="close" aria-label="關閉設定">×</button></div><p class="dialog-intro">只填寫本次必要資料；體重僅用於本機估算熱量，可留白。</p><form id="profile"><fieldset id="fields"><label>課堂代號 <span>選填，不需真實姓名</span><input id="alias" maxlength="24" placeholder="例如 A 組 07"></label><label>體重 <span>kg · 選填，僅用於本機熱量估算</span><input id="weight" type="number" min="20" max="250" step="0.1" placeholder="可留白"></label><label>運動方式<select id="mode"><option value="3.5">舒適步行 · 3.5 MET</option><option value="4.8">快走 · 4.8 MET</option><option value="7.5">慢跑 · 7.5 MET</option></select></label><div class="privacy-note"><svg><use href="#i-cross"/></svg><span>保持網頁在前景。切換 App 或鎖屏會暫停，返回後請按繼續。</span></div><label class="check"><input id="consent" type="checkbox" required><span>同意在此裝置記錄位置與運動資料，可隨時刪除。</span></label></fieldset><button class="primary" id="start" type="submit">開始 GPS 運動 <svg><use href="#i-arrow"/></svg></button></form><button class="demo-link" id="demo">先體驗示範運動</button><p class="fine">熱量僅供教學參考。身高與年齡不蒐集；體重留白時不估算熱量。成人 MET 不宜作未滿 19 歲學生的個人評估。</p></dialog>
 <dialog id="energyDialog"><div class="dialog-head"><h2>熱量如何估算？</h2><button class="close" id="closeEnergy" aria-label="關閉熱量說明">×</button></div><p>以你選擇的活動強度（MET）、體重與運動時間估算總消耗，包含休息代謝。</p><div class="formula">MET × 3.5 × 體重 kg ÷ 200 × 分鐘</div><p class="fine">不是 GPS 直接測量，也不能作為醫療或飲食處方。實際消耗因速度、坡度與個人體能而異。</p><a href="handout.html">查看完整教學講義 →</a></dialog>
-<script src="vendor/leaflet.js"></script><script src="mode.js"></script>
+<script src="vendor/leaflet.js"></script><script src="api-config.js"></script><script src="api-client.js"></script><script src="mode.js"></script>
 <script>
 (() => {
   const status = document.getElementById('authStatus');
-  fetch('api/classroom?op=me', { cache: 'no-store', credentials: 'same-origin', redirect: 'manual' })
+  status.href = PaceApi.loginUrl();
+  PaceApi.fetch('/api/classroom?op=me', { redirect: 'manual' })
     .then(async response => {
       if (response.type === 'opaqueredirect' || response.status === 0) return;
       if (response.status === 404) {

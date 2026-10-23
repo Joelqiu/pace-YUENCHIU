@@ -1,7 +1,8 @@
 'use strict';
 const $=id=>document.getElementById(id);let identity,classes=[],lessons=[],students=[],currentClass,currentLesson,pendingLessonId=null;
 function msg(t){$('cloudMessage').textContent=t;}
-async function api(op,data={},write=false){const r=await fetch('/api/classroom'+(write?'':'?'+new URLSearchParams({op,...data})),{method:write?'POST':'GET',headers:write?{'Content-Type':'application/json'}:{},body:write?JSON.stringify({op,...data}):undefined,cache:'no-store'});let j;try{j=await r.json();}catch{throw Error('無法連接班級服務，請確認網站已完成資料庫部署。')}if(!r.ok)throw Error(j.error||'操作失敗');return j;}
+$('authLink').href=PaceApi.loginUrl();if($('classroomLogin'))$('classroomLogin').href=PaceApi.loginUrl();$('authLink').addEventListener('click',e=>{if($('authLink').textContent==='登出'){e.preventDefault();location.href=PaceApi.logoutUrl();}});
+async function api(op,data={},write=false){const r=await PaceApi.fetch('/api/classroom'+(write?'':'?'+new URLSearchParams({op,...data})),{method:write?'POST':'GET',headers:write?{'Content-Type':'application/json'}:{},body:write?JSON.stringify({op,...data}):undefined,cache:'no-store'});let j;try{j=await r.json();}catch{throw Error('無法連接班級服務，請確認網站已完成資料庫部署。')}if(!r.ok)throw Error(j.error||'操作失敗');return j;}
 function safe(fn){return async(...args)=>{try{await fn(...args);}catch(e){msg(e.message);}}}
 function option(select,value,label){const o=document.createElement('option');o.value=value;o.textContent=label;select.append(o);}
 function activityTypeLabel(type){return ({walk:'步行',run:'慢跑',mixed:'暖身＋主活動＋緩和',other:'其他'})[type]||'步行';}

@@ -3,9 +3,9 @@
   const $ = id => document.getElementById(id);
   const params = new URLSearchParams(location.search);
   const sessionId = params.get('id') || '';
-  const apiUrl = suffix => new URL(`api/live/${encodeURIComponent(sessionId)}${suffix}`, location.href).href;
+  const apiUrl = suffix => PaceApi.url(`/api/live/${encodeURIComponent(sessionId)}${suffix}`);
   const api = async (url, options = {}) => {
-    const response = await fetch(url, { credentials: 'same-origin', cache: 'no-store', ...options });
+    const response = await PaceApi.fetch(url, options);
     let data;
     try { data = await response.json(); }
     catch { throw new Error(response.redirected ? '登入後可查看授權的即時軌跡。' : '即時同步服務目前無法讀取。'); }
@@ -104,6 +104,6 @@
     });
     connect();
   }
-  $('liveLogin').href = new URL('api/classroom?op=login', location.href).href;
+  $('liveLogin').href = PaceApi.loginUrl();
   load().catch(error => { message(error.message); $('liveStatus').textContent = '無法載入'; $('liveLogin').hidden = false; });
 })();
