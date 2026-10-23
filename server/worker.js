@@ -48,8 +48,15 @@ async function verifyAccessToken(request, env) {
     if (header.alg !== "RS256" || !header.kid) throw new Error("unsupported token");
     const now = Math.floor(Date.now() / 1000);
     const claimAudiences = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
-    if (claims.type !== "app" || claims.iss !== teamDomain || !claimAudiences.includes(audience) || !Number.isFinite(claims.exp) || claims.exp < now - 60 ||
-      Number.isFinite(claims.nbf) && claims.nbf > now + 60 || !claims.sub || !claims.email) throw new Error("invalid claims");
+    if (claims.type !== "app") throw new Error("invalid token type");
+    if (claims.iss !== teamDomain) throw Object.assign(new Error("Cloudflare Access Team Domain 不一致，請核對 ACCESS_TEAM_DOMAIN。"), { status: 401 });
+    if (!claimAudiences.includes(audience)) {
+      const actualAudiences = claimAudiences.filter(Boolean).join(",") || "(none)";
+      throw Object.assign(new Error(`Access Audience Tag 不一致；Worker ACCESS_AUD=${audience}；登入 token aud=${actualAudiences}`), { status: 401 });
+    }
+    if (!Number.isFinite(claims.exp) || claims.exp < now - 60) throw Object.assign(new Error("Access 登入已過期，請重新登入。"), { status: 401 });
+    if (Number.isFinite(claims.nbf) && claims.nbf > now + 60) throw new Error("token not active");
+    if (!claims.sub || !claims.email) throw new Error("missing identity claims");
 
     let keys = await loadAccessKeys(teamDomain);
     let jwk = keys.find(key => key.kid === header.kid && key.kty === "RSA");
@@ -59,8 +66,9 @@ async function verifyAccessToken(request, env) {
     const valid = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, base64UrlBytes(parts[2]), new TextEncoder().encode(`${parts[0]}.${parts[1]}`));
     if (!valid) throw new Error("invalid signature");
     return { sub: String(claims.sub), teacher: teacherEmails(env).has(String(claims.email).trim().toLowerCase()) };
-  } catch {
-    throw Object.assign(new Error("Access 登入資訊無效或已過期，請重新登入；若仍失敗，請確認測試站 Access Audience Tag 設定。"), { status: 401 });
+  } catch (error) {
+    if (error?.status) throw error;
+    throw Object.assign(new Error("Access 登入資訊無效或已過期，請重新登入。"), { status: 401 });
   }
 }
 

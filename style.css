@@ -136,3 +136,5 @@ textarea{font:inherit;display:block;width:100%;border:1px solid #dce2d0;border-r
   #setupDialog #fields{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
   #setupDialog #fields>label:nth-of-type(3),#setupDialog #fields>.privacy-note,#setupDialog #fields>.check,#setupDialog #fields>.live-sync-setup{grid-column:1/-1}
 }
+
+.start-error{color:#b8452d;font-size:11px;line-height:1.5;margin:6px 0 10px}
