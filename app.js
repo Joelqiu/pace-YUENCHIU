@@ -4,6 +4,7 @@ const $=id=>document.getElementById(id), center=[24.1796,120.6495], KEY='campus-
 let records=[];try{records=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(records))records=[];}catch{}
 let map, route, halo=null, startMarker=null, positionDot, accuracyCircle, targetMarker, targetLine, target=null, current=null, headingAnchor=null, currentHeading=null;
 let session=null, watch=null, demoTimer=null, wake=null, last=null, lastSignal=0, lines=[], storageOK=true, motionHandler=null, motionTimeout=null, motionAuthorized=false, motionCheck=null;
+const stepDetector=MoveCore.createStepDetector();
 function message(s){$('message').textContent=s;}function startNotice(s){message(s);const note=$('startError');if(note){note.textContent=s;note.hidden=false;}}
 function setBadge(state,label){const badge=$('badge');if(badge.dataset.state===state&&badge.textContent===label)return;badge.dataset.state=state;badge.textContent=label;}
 function updateLiveGPSBadge(p){if(session.demo){setBadge('demo','示範運動');return;}const weak=!Number.isFinite(p.accuracy)||p.accuracy>35||($('badge').dataset.state==='weak'&&p.accuracy>30);if(weak)setBadge('weak','訊號偏弱');else setBadge(session.points.length?'recording':'waiting',session.points.length?'記錄中':'GPS 已連線');}
