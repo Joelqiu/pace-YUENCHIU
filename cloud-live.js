@@ -22,7 +22,6 @@
     if (!fields || byId('liveSyncSetup')) return;
     const box = h('section', '', 'live-sync-setup');
     box.id = 'liveSyncSetup';
-    const heading = h('strong', '即時同步到電腦');
     const consentLabel = h('label', '', 'check live-sync-check');
     const consent = document.createElement('input'); consent.type = 'checkbox'; consent.id = 'liveSyncConsent';
     const consentText = h('span', '分享本次運動的 GPS 軌跡與運動數值，讓自己及此課程的授權教師即時查看。');
@@ -34,7 +33,7 @@
     const message = h('p', '未勾選時不會上傳 GPS；本機運動紀錄照常保存。取消即時分享不影響本次運動記錄。', 'fine');
     const auth = h('a', '登入班級中心以啟用同步 →', 'live-sync-login'); auth.href = urlFor('api/classroom?op=login'); auth.hidden = true;
     const status = h('p', '', 'live-sync-config-status'); status.id = 'liveSyncConfigStatus';
-    box.append(heading, consentLabel, pickers, message, auth, status);
+    box.append(consentLabel, pickers, message, auth, status);
     const consentExisting = byId('consent')?.closest('label');
     if (consentExisting) consentExisting.after(box); else fields.append(box);
     consent.addEventListener('change', () => {
