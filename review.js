@@ -7,6 +7,7 @@
 
   const setStatus = text => { $('status').textContent = text; };
   const isNum = v => typeof v === 'number' && Number.isFinite(v);
+  const formatPace = (seconds, meters) => { if (!Number.isFinite(seconds) || !Number.isFinite(meters) || seconds <= 0 || meters < 100) return '—:—'; const total = Math.round(seconds * 1000 / meters); return Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0'); };
   const fmtTime = sec => {
     const s = Math.floor(sec || 0);
     const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
@@ -94,10 +95,12 @@
   function showFacts(r) {
     const km = r.meters / 1000, sec = r.seconds;
     const speed = sec > 0 ? km / (sec / 3600) : 0;
+    const pace = formatPace(sec, r.meters);
     const computedKcal = isNum(r.met) && isNum(r.weight) ? MoveCore.calories(r.met, r.weight, sec) : null;
     const kcal = isNum(r.kcal) ? r.kcal : computedKcal;
     $('statDistance').textContent = km.toFixed(2);
     $('statTime').textContent = fmtTime(sec);
+    $('statPace').textContent = pace;
     $('statSpeed').textContent = speed.toFixed(1);
     $('statKcal').textContent = isNum(kcal) ? String(Math.round(kcal)) : '—';
 
@@ -127,6 +130,7 @@
     addFact(dl, '集合點距離', t && isNum(t.lat) && isNum(t.lng)
       ? '終點到集合點直線約 ' + Math.round(MoveCore.distance(last, t)) + ' 公尺'
       : '這次紀錄未設定集合點');
+    addFact(dl, '平均配速', pace === '—:—' ? '距離不足，暫不顯示' : pace + ' 分/公里（依 GPS 距離估算）');
     addFact(dl, '平均速度', speed.toFixed(2) + ' km/h（距離 ÷ 運動時間）');
     addFact(dl, '熱量估算', (isNum(kcal) && isNum(r.met) && isNum(r.weight))
       ? r.met + ' × 3.5 × ' + r.weight + ' ÷ 200 × ' + (sec / 60).toFixed(1) + ' 分鐘 ＝ ' + kcal.toFixed(1) + ' kcal（估算值，非 GPS 測量）'
@@ -142,7 +146,7 @@
       bar.className = 'split-bar'; bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', '該分段配速圖');
       const minutesPerKm = split.seconds / Math.max(split.meters / 1000, .001) / 60;
       fill.style.width = `${Math.max(4, Math.min(100, minutesPerKm / maxPace * 100))}%`; bar.append(fill);
-      pace.className = 'split-time'; pace.textContent = `${Math.floor(minutesPerKm)}:${String(Math.round((minutesPerKm % 1) * 60)).padStart(2, '0')} 分/公里`;
+      pace.className = 'split-time'; pace.textContent = formatPace(split.seconds, split.meters) + ' 分/公里';
       li.append(label, bar, pace); list.append(li);
     }
   }

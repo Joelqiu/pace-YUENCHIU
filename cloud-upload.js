@@ -86,7 +86,14 @@
         record: { id, date, seconds, meters, demo, state, pointCount: record.points.length,
           effort: reflectionConsent ? effort : '', reflection: reflectionConsent ? reflection : '' },
       }, true);
-      $('uploadStatus').textContent = '已成功繳交。教師可在班級中心查看摘要與你另外授權的反思。';
+      const submittedAt = new Date().toISOString();
+      try {
+        const history = JSON.parse(localStorage.getItem('campus-move-history-v1') || '[]');
+        const saved = Array.isArray(history) ? history.find(item => String(item.id) === String(record.id)) : null;
+        if (saved) { saved.submittedAt = submittedAt; localStorage.setItem('campus-move-history-v1', JSON.stringify(history)); }
+      } catch {}
+      window.dispatchEvent(new CustomEvent('pace:record-submitted', { detail: { id: String(record.id), submittedAt } }));
+      $('uploadStatus').textContent = '已繳交本次運動時間與距離；教師只會看到這份摘要，以及你另外授權的反思。本次摘要不含 GPS 軌跡；若已同意即時同步，軌跡依該同意保存 24 小時。';
       $('uploadForm').hidden = true;
     } catch (error) { $('uploadStatus').textContent = error.message; }
     finally { $('submitRecordBtn').disabled = false; }

@@ -21,8 +21,8 @@ h1{font-size:28px;margin:0 0 6px}
 .drop input{font:inherit}
 #status{margin:12px 0 0;min-height:1.4em;color:var(--muted);font-size:14px}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:18px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.stats div{background:var(--paper);border-radius:10px;padding:12px}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.stats div{background:var(--paper);border-radius:10px;padding:12px}.stats .pace-stat{background:#e8ecdf}.stats .pace-stat strong{color:#46583b}
 .stats span{display:block;color:var(--muted);font-size:12px}
 .stats strong{font-size:24px}
 .stats small{color:var(--muted);font-size:12px;margin-left:4px}
@@ -36,7 +36,7 @@ th,td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;white-
 th{color:var(--muted);font-weight:600}
 .table-wrap{overflow-x:auto}
 .split-list{list-style:none;padding:0;margin:10px 0 0}.split-list li{display:grid;grid-template-columns:minmax(95px,150px) minmax(80px,1fr) auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px}.split-bar{height:8px;border-radius:9px;background:#e9eddf;overflow:hidden}.split-bar span{display:block;height:100%;background:#82976a;border-radius:9px}.split-time{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}.review-title{font-size:16px;margin:0 0 8px}
-@media (max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}dl{grid-template-columns:1fr}dt{margin-top:6px}}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats strong{font-size:21px}dl{grid-template-columns:1fr}dt{margin-top:6px}}
 </style>
 </head>
 <body>
@@ -58,7 +58,7 @@ th{color:var(--muted);font-weight:600}
   <div class="stats">
     <div><span>累積距離</span><strong id="statDistance">0.00</strong><small>km</small></div>
     <div><span>運動時間</span><strong id="statTime">00:00</strong></div>
-    <div><span>平均速度</span><strong id="statSpeed">0.0</strong><small>km/h</small></div>
+    <div class="pace-stat"><span>平均配速</span><strong id="statPace">—:—</strong><small>分/公里</small></div><div><span>平均速度</span><strong id="statSpeed">0.0</strong><small>km/h</small></div>
     <div><span>估算熱量</span><strong id="statKcal">0</strong><small>kcal</small></div>
   </div>
   <div id="reviewMap" aria-label="運動軌跡地圖"></div>

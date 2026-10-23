@@ -25,13 +25,13 @@
     const heading = h('strong', '即時同步到電腦');
     const consentLabel = h('label', '', 'check live-sync-check');
     const consent = document.createElement('input'); consent.type = 'checkbox'; consent.id = 'liveSyncConsent';
-    const consentText = h('span', '分享本次運動的 GPS 軌跡與運動數值，讓自己及此課程的授權教師即時查看。');
+    const consentText = h('span', '同意後會即時分享本次 GPS 軌跡與運動數值，供本人及所選課程的授權教師查看。運動結束 24 小時後自動刪除；期限內本人或該班教師可提前刪除。');
     consentLabel.append(consent, consentText);
     const pickers = h('div', '', 'live-sync-pickers'); pickers.id = 'liveSyncPickers'; pickers.hidden = true;
     const classLabel = h('label', '班級'); const classSelect = document.createElement('select'); classSelect.id = 'liveSyncClass'; classSelect.required = true; classLabel.append(classSelect);
     const lessonLabel = h('label', '課程'); const lessonSelect = document.createElement('select'); lessonSelect.id = 'liveSyncLesson'; lessonSelect.required = true; lessonLabel.append(lessonSelect);
     pickers.append(classLabel, lessonLabel);
-    const message = h('p', '僅在勾選後傳送定位。完成後雲端即時軌跡保存 24 小時，期間可由本人或該班教師刪除。', 'fine');
+    const message = h('p', '未勾選時不會上傳 GPS；本機運動紀錄照常保存。取消即時分享不影響本次運動記錄。', 'fine');
     const auth = h('a', '登入班級中心以啟用同步 →', 'live-sync-login'); auth.href = urlFor('api/classroom?op=login'); auth.hidden = true;
     const status = h('p', '', 'live-sync-config-status'); status.id = 'liveSyncConfigStatus';
     box.append(heading, consentLabel, pickers, message, auth, status);
@@ -71,7 +71,7 @@
     shareReady = true;
     select.disabled = false;
     await loadLessons(select.value);
-    byId('liveSyncConfigStatus').textContent = '定位只分享給本人及所選班級教師；課程結束後 24 小時自動清除。';
+    byId('liveSyncConfigStatus').textContent = '定位只分享給本人及所選課程教師；運動結束 24 小時後自動清除，期間可由本人或該班教師提前刪除。';
   }
 
   async function loadLessons(classId) {

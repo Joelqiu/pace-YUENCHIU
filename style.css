@@ -22,3 +22,62 @@ textarea{font:inherit;display:block;width:100%;border:1px solid #dce2d0;border-r
 /* Clear live GPS and workout states. */
 .status{display:inline-flex;align-items:center;gap:7px;min-height:28px;padding:5px 10px;border:1px solid #e1e5da;border-radius:999px;background:#f6f7f2;color:#687264;font-size:11px;font-weight:650;line-height:1;letter-spacing:.1px}.status:before{content:"";width:7px;height:7px;border-radius:50%;background:#92998b;flex:none}.status[data-state="waiting"]{background:#fff8e9;border-color:#f0dfb5;color:#835f19}.status[data-state="waiting"]:before{background:#d59832;animation:status-pulse 1.4s ease-in-out infinite}.status[data-state="located"]{background:#edf5f7;border-color:#d5e6ea;color:#326b7c}.status[data-state="located"]:before{background:#448ca1}.status[data-state="recording"],.status[data-state="done"]{background:#edf4e9;border-color:#d8e5ce;color:#4e6e3d}.status[data-state="recording"]:before,.status[data-state="done"]:before{background:#6e964f}.status[data-state="weak"]{background:#fff5e7;border-color:#efd7b0;color:#895c19}.status[data-state="weak"]:before{background:#d9942e}.status[data-state="paused"],.status[data-state="idle"]{background:#f1f2ed;border-color:#e1e3dc;color:#687168}.status[data-state="paused"]:before{background:#91988c}.status[data-state="error"]{background:#fff0ec;border-color:#f0d0c7;color:#9b4a38}.status[data-state="error"]:before{background:#d45c42}.status[data-state="demo"]{background:#edf2f8;border-color:#d9e2ef;color:#4c6784}.status[data-state="demo"]:before{background:#6688ae}@keyframes status-pulse{50%{box-shadow:0 0 0 4px #d598322b}}@media(prefers-reduced-motion:reduce){.status[data-state="waiting"]:before{animation:none}}
 .avatar.auth-status{width:auto;min-width:31px;padding:0 11px;border-radius:999px;white-space:nowrap;font-weight:600}.avatar.auth-status:hover{background:#e2e4d8}.avatar.auth-status:focus-visible{outline:3px solid #e89462;outline-offset:3px}
+
+/* Prioritize starting a session and make pace the main running metric. */
+.primarymetric{padding:14px 0 16px}
+.primarymetric>span{font-size:12px}
+.primarymetric>div{gap:8px}
+.primarymetric b{font-size:64px;letter-spacing:-3px}
+.primarymetric div>span{font-size:12px}
+.metric-grid .energy{grid-column:auto;display:block}
+.metric-grid .energy strong{font-size:25px}
+.start-context{display:grid;gap:8px;padding:12px 0 14px;border-top:1px solid #ffffff14}
+.start-context-line{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.start-context .status{font-size:10px}
+.start-accuracy,.start-mode{font-size:10px;color:#a5b098}
+.start-accuracy b,.start-mode b{color:#f5f6ef;font-weight:600}
+.start-context p{font-size:9px;line-height:1.5;color:#8e9a84}
+
+/* Personal, local-only progress and easier activity review. */
+.history-insights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:14px 0}
+.history-insight{display:grid;gap:3px;padding:13px 14px;border:1px solid #e2e5d9;border-radius:7px;background:#fff}
+.history-insight>span{font-size:10px;color:#848d78}
+.history-insight>strong{font-size:19px;font-weight:650;font-variant-numeric:tabular-nums;color:#384333}
+.history-insight>small{font-size:9px;color:#9ba28e}
+.record{grid-template-columns:88px minmax(140px,1fr) 180px minmax(230px,auto);gap:14px}
+.record-info{min-width:0}
+.record-stats{gap:12px}
+.record-review-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 10px;border-radius:5px;background:#e8ecdf;color:#46583b;font-size:10px;font-weight:650;white-space:nowrap}
+.record-review-link:hover{background:#dce4d0}
+.record-more{position:relative}
+.record-more>summary{cursor:pointer;list-style:none;border:1px solid #dce2d1;border-radius:5px;padding:8px 10px;color:#71805e;font-size:10px;white-space:nowrap}
+.record-more>summary::-webkit-details-marker{display:none}
+.record-more[open]>summary{background:#f1f3eb}
+.record-more-menu{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.record-more-menu button{font-size:9px;border:1px solid #dce2d1;padding:6px 8px;border-radius:4px;color:#71805e;background:#fff}
+.record-submitted{font-size:9px;color:#557447;padding:5px 2px}
+
+@media(max-width:900px){
+  .workout{grid-template-columns:minmax(0,1fr)}
+  .session-panel{order:-1;padding:20px}
+  .mapcard{order:1}
+}
+@media(max-width:650px){
+  main{padding-top:20px}
+  .pageheading{margin-bottom:16px}
+  .workout{overflow:visible;border-radius:10px}
+  .session-panel{padding:16px}
+  .primarymetric{padding:8px 0 10px}
+  .primarymetric b{font-size:54px}
+  .metric-grid{gap:12px 10px;padding:12px 0}
+  .session-message{min-height:38px;padding:9px 0}
+  .start-context{padding:9px 0 11px}
+  .history-insights{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .history-insight{padding:11px}
+  .record{grid-template-columns:64px minmax(0,1fr);gap:8px 12px;padding:14px 0}
+  .route-thumb{width:64px;height:64px;grid-row:span 2}
+  .record-stats{grid-column:2;flex-wrap:wrap;gap:6px 12px}
+  .record-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+  .record-review-link{flex:1;min-width:150px}
+  .record-more-menu{max-width:calc(100vw - 48px)}
+}
